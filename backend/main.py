@@ -116,12 +116,12 @@ async def root():
 
 
 # ============================================================================
-# Authentication Routes (will be imported from src.api.auth)
+# Authentication Routes
 # ============================================================================
 
-# TODO: Import and include auth routes
-# from src.api.auth import router as auth_router
-# app.include_router(auth_router, prefix="/api/auth", tags=["authentication"])
+from src.api.auth import router as auth_router
+
+app.include_router(auth_router, prefix="/api", tags=["authentication"])
 
 
 # ============================================================================
