@@ -1,55 +1,44 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Hakathon Phase 2 Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Spec-Driven Development (SDD)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+All work must be grounded in written specifications. Every feature begins with a spec document that clarifies requirements, acceptance criteria, and scope. Specifications drive planning, task generation, and implementation validation. Spec-first ensures shared understanding between architects, developers, and stakeholders before code is written.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Explicit Planning & Architecture
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Plans must document all ify
+significant architectural decisions with clear rationale and tradeoffs. Decisions that impact system design, APIs, data models, or deployment must be captured in Architecture Decision Records (ADRs). Planning precedes implementation; no major code changes without approved designs.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Test-Driven Development (TDD)
 
-### [PRINCIPLE_6_NAME]
+Tests are written before implementation. Red-Green-Refactor cycle is mandatory: write failing tests → get user approval → implement until tests pass → refactor safely. Testing covers units, integration points, and acceptance criteria. All test additions and modifications are tracked and reported.
 
+### IV. Small, Testable Changes
 
-[PRINCIPLE__DESCRIPTION]
+Each commit delivers one logical change, is independently testable, and references the spec/task it addresses. Large refactors are broken into smaller PRs. Changes do not introduce unrelated improvements or "clean up" code unless explicitly requested. Code references (file:line) are used to trace modifications back to source.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### V. Observable, Debuggable Systems
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+All significant operations emit structured logs. Error paths are explicit and traced. Command-line tools default to human-readable output with JSON options for automation. Debugging must be possible from logs and traces alone—no reliance on IDE breakpoints or internal state inspection.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Code review must verify:
+- Specification compliance: Changes match the approved spec/task.
+- Test coverage: Acceptance criteria are validated by tests.
+- Constitution adherence: Principles are followed (SDD, planning, TDD, testability, observability).
+
+Complexity must be justified in the PR or commit message. YAGNI (You Aren't Gonna Need It) principle applies—features not explicitly in the spec are not added. Breaking changes require explicit version bumps and migration documentation.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This Constitution supersedes all other practices and policies. Amendments are recorded with version bumps following semantic versioning:
+- MAJOR: Principle removal or backward-incompatible redefinition.
+- MINOR: New principle or materially expanded guidance.
+- PATCH: Clarifications, wording, non-semantic refinements.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+All PRs and code reviews must verify Constitution compliance. Deviations require explicit justification and ADR documentation if architecturally significant. Constitution reviews occur quarterly or after major changes.
+
+**Version**: 1.0.0 | **Ratified**: 2026-01-03 | **Last Amended**: 2026-01-03
