@@ -125,14 +125,12 @@ app.include_router(auth_router, prefix="/api", tags=["authentication"])
 
 
 # ============================================================================
-# Task Routes (will be imported from src.api.tasks)
+# Task Routes
 # ============================================================================
 
-# TODO: Import and include task routes
-# from src.api.tasks import router as tasks_router
-# app.include_router(
-#     tasks_router, prefix="/api/users", tags=["tasks"]
-# )
+from src.api.tasks import router as tasks_router
+
+app.include_router(tasks_router, prefix="/api", tags=["tasks"])
 
 
 if __name__ == "__main__":

@@ -17,16 +17,29 @@ from typing import AsyncGenerator
 from src.config import settings
 
 
-# Async engine for FastAPI async endpoints
-async_engine = create_async_engine(
-    settings.database_url.replace("postgresql://", "postgresql+asyncpg://"),
-    echo=settings.debug,
-    future=True,
-    pool_size=5,
-    max_overflow=10,
-    pool_pre_ping=True,  # Verify connections are alive
-    pool_recycle=3600,   # Recycle connections after 1 hour
-)
+# Async engine for FastAPI async endpoints - created lazily to avoid import issues
+def get_async_engine():
+    # Handle both PostgreSQL and SQLite URLs appropriately
+    if settings.database_url.startswith("sqlite"):
+        # For SQLite, use aiosqlite driver
+        db_url = settings.database_url.replace("sqlite:///", "sqlite+aiosqlite:///")
+    else:
+        # For PostgreSQL, use asyncpg driver
+        db_url = settings.database_url.replace("postgresql://", "postgresql+asyncpg://")
+
+    return create_async_engine(
+        db_url,
+        echo=settings.debug,
+        future=True,
+        pool_size=5,
+        max_overflow=10,
+        pool_pre_ping=True,  # Verify connections are alive
+        pool_recycle=3600,   # Recycle connections after 1 hour
+    )
+
+
+# Create the engine instance
+async_engine = get_async_engine()
 
 # Async session factory
 async_session_maker = async_sessionmaker(

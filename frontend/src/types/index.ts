@@ -194,6 +194,7 @@ export interface TaskListState {
   isLoading: boolean;
   error?: string;
   filter: TaskFilter;
+  searchQuery: string;
   total: number;
 }
 
@@ -233,7 +234,9 @@ export interface TaskListProps {
   onToggleComplete: (taskId: UUID, completed: boolean) => Promise<void>;
   onEdit: (task: Task) => void;
   filter?: TaskFilter;
+  searchQuery?: string;
   onFilterChange?: (filter: TaskFilter) => void;
+  onSearchChange?: (searchQuery: string) => void;
 }
 
 /**

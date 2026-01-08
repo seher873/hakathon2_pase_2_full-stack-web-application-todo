@@ -10,7 +10,7 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { createContext, useContext, useCallback, useEffect, useState, ReactNode } from "react";
 import type { AuthState } from "@/types";
 import {
   saveSession,
@@ -32,6 +32,28 @@ const initialState: AuthState = {
   error: undefined,
 };
 
+// Create AuthContext
+const AuthContext = createContext<{
+  ...AuthState;
+  signup: (email: string, password: string, passwordConfirm: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  clearError: () => void;
+} | undefined>(undefined);
+
+/**
+ * AuthProvider component to wrap the app.
+ */
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const auth = useAuthProvider();
+
+  return (
+    <AuthContext.Provider value={auth}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
 /**
  * Custom hook for authentication management.
  *
@@ -50,7 +72,7 @@ const initialState: AuthState = {
  *
  * @returns Authentication state and functions
  */
-export function useAuth() {
+function useAuthProvider() {
   const [state, setState] = useState<AuthState>(initialState);
 
   // Initialize auth state on mount
@@ -219,4 +241,15 @@ export function useAuth() {
     logout,
     clearError,
   };
+}
+
+/**
+ * Custom hook to use the auth context.
+ */
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }

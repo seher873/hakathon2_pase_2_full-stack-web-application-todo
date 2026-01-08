@@ -144,14 +144,8 @@ async def login(
     """
     Authenticate user and issue JWT token.
 
-    Note: In Phase II, login is handled by Better Auth on the frontend.
-    This endpoint is a placeholder for backend verification if needed.
-
-    Typical flow:
-    1. Frontend authenticates user via Better Auth
-    2. Better Auth returns JWT token
-    3. Frontend sends token in Authorization header for all requests
-    4. Backend verifies JWT in middleware
+    Authenticates user by email and password, verifies credentials,
+    and issues JWT token if authentication is successful.
 
     Request Body:
     - email: Email address
@@ -167,18 +161,16 @@ async def login(
     - 401: Authentication failed
     - 500: Server error
     """
-    # Look up user by email
-    user = await UserService.get_user_by_email(session, request.email)
+    # Authenticate user by email and password
+    user = await UserService.authenticate_user(session, request.email, request.password)
 
     if not user:
-        # User not found
-        raise {
-            "status_code": status.HTTP_400_BAD_REQUEST,
-            "detail": ERROR_MESSAGES.get("INVALID_CREDENTIALS", "Invalid credentials"),
-        }
-
-    # In production, verify password hash here
-    # For now, this is a placeholder since Better Auth handles passwords
+        # Invalid credentials
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=ERROR_MESSAGES.get("INVALID_CREDENTIALS", "Invalid credentials"),
+        )
 
     # Generate JWT token
     payload = {

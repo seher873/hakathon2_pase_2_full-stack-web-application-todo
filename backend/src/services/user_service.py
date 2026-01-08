@@ -6,6 +6,7 @@ Handles:
 - Email validation
 - Password validation
 - Duplicate user detection
+- Password hashing and verification
 """
 
 import re
@@ -13,8 +14,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlmodel import Session
 from fastapi import HTTPException, status
+from passlib.context import CryptContext
 
 from src.models.user import User, UserCreate, UserResponse
+
+# Password hashing context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class UserService:
@@ -149,7 +154,7 @@ class UserService:
         Create new user account.
 
         Validates email and password, checks for duplicates,
-        and creates user record.
+        hashes the password, and creates user record.
 
         Args:
             session: Database session
@@ -173,11 +178,13 @@ class UserService:
         # Check for existing user
         await UserService.user_exists(session, user_data.email)
 
+        # Hash the password
+        password_hash = pwd_context.hash(user_data.password)
+
         # Create new user
-        # Note: Password is NOT hashed here - Better Auth handles password hashing
-        # We only store email for task ownership validation
         new_user = User(
             email=user_data.email.lower(),
+            password_hash=password_hash,
         )
 
         session.add(new_user)
@@ -223,3 +230,43 @@ class UserService:
         stmt = select(User).where(User.id == user_id)
         result = await session.execute(stmt)
         return result.scalars().first()
+
+    @staticmethod
+    def verify_password(plain_password: str, hashed_password: str) -> bool:
+        """
+        Verify a plain password against its hash.
+
+        Args:
+            plain_password: Password to verify
+            hashed_password: Stored hash to compare against
+
+        Returns:
+            True if password matches the hash
+        """
+        return pwd_context.verify(plain_password, hashed_password)
+
+    @staticmethod
+    async def authenticate_user(
+        session: AsyncSession,
+        email: str,
+        password: str,
+    ) -> User | None:
+        """
+        Authenticate user by email and password.
+
+        Args:
+            session: Database session
+            email: User's email
+            password: User's password
+
+        Returns:
+            User if authentication successful, None otherwise
+        """
+        user = await UserService.get_user_by_email(session, email)
+        if not user:
+            return None
+
+        if not UserService.verify_password(password, user.password_hash):
+            return None
+
+        return user

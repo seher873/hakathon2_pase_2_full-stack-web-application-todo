@@ -5,11 +5,15 @@ Note: User accounts are managed by Better Auth on the frontend,
 but the backend tracks user_id to scope task ownership.
 """
 
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from uuid import UUID
 from datetime import datetime
+from typing import TYPE_CHECKING, List
 
 from .base import BaseModel
+
+if TYPE_CHECKING:
+    from .task import Task
 
 
 class UserBase(SQLModel):
@@ -34,6 +38,7 @@ class User(BaseModel, UserBase, table=True):
     Fields:
     - id: UUID (primary key, from parent BaseModel)
     - email: str (unique, indexed)
+    - password_hash: str (hashed password)
     - created_at: datetime (from parent BaseModel)
     - updated_at: datetime (from parent BaseModel)
     """
@@ -42,6 +47,15 @@ class User(BaseModel, UserBase, table=True):
 
     # Email index for fast lookups
     # Index automatically created by Field(index=True)
+
+    # Password hash field
+    password_hash: str = Field(
+        max_length=255,
+        description="Hashed password",
+    )
+
+    # Relationship to tasks
+    tasks: List["Task"] = Relationship(back_populates="user")
 
 
 class UserCreate(UserBase):
