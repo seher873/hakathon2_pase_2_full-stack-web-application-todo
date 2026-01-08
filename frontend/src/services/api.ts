@@ -15,8 +15,8 @@ import type {
   Task,
   CreateTaskRequest,
   UpdateTaskRequest,
-  UUID,
 } from "@/types";
+type UUID = string;
 import { getAuthHeader } from "@/utils/storage";
 
 // ============================================================================
@@ -65,7 +65,7 @@ async function parseError(
     status: response.status,
     code: `HTTP_${response.status}`,
     message: statusMessages[response.status] || "Unknown error",
-    details: data,
+    details: data as Record<string, unknown>,
   };
 }
 

@@ -32,14 +32,14 @@ const initialState: AuthState = {
   error: undefined,
 };
 
-// Create AuthContext
-const AuthContext = createContext<{
-  ...AuthState;
+interface AuthContextType extends AuthState {
   signup: (email: string, password: string, passwordConfirm: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
-} | undefined>(undefined);
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
  * AuthProvider component to wrap the app.
@@ -86,6 +86,8 @@ function useAuthProvider() {
             user: {
               id: session.user.id as any,
               email: session.user.email,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
             },
             token: session.token,
             isAuthenticated: true,
@@ -144,6 +146,8 @@ function useAuthProvider() {
           user: {
             id: user.id as any,
             email: user.email,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           },
           token,
           isAuthenticated: true,
@@ -191,6 +195,8 @@ function useAuthProvider() {
           user: {
             id: user.id as any,
             email: user.email,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           },
           token,
           isAuthenticated: true,

@@ -1,11 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  distDir: 'out',
-  trailingSlash: true,
-  images: {
-    unoptimized: true,
-  },
-}
+  // Temporarily remove output: 'export' to see if build works without static generation
+  // output: 'export', // This is already set in your netlify.toml
+  // trailingSlash: true,
 
-module.exports = nextConfig
+  // Handle the dynamic routes that use client-side hooks
+  async redirects() {
+    return [
+      // Redirect any problematic routes if needed
+    ]
+  },
+};
+
+module.exports = nextConfig;

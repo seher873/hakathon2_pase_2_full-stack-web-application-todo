@@ -7,7 +7,7 @@
 
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { Task, TaskFilter, TaskListState, CreateTaskRequest, UpdateTaskRequest } from '../types';
-import { api } from '../services/api';
+import { apiGet, apiPost, apiPut, apiDelete, apiPatch } from '../services/api';
 import { useAuth } from './useAuth';
 
 // ============================================================================
@@ -226,7 +226,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       }
 
       // Fetch tasks from API
-      const response = await api.get(`/api/users/${user.id}/tasks`, queryParams);
+      const response = await apiGet<{ tasks: Task[]; total: number }>(`/users/${user.id}/tasks`, queryParams);
 
       if (response.status === 'success' && response.data) {
         dispatch({
@@ -253,7 +253,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     try {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
-      const response = await api.post(`/api/users/${user.id}/tasks`, taskData);
+      const response = await apiPost<Task>(`/users/${user.id}/tasks`, taskData);
 
       if (response.status === 'success' && response.data) {
         dispatch({ type: TASK_ACTIONS.ADD_TASK, payload: response.data });
@@ -274,8 +274,8 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     try {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
-      const response = await api.put(
-        `/api/users/${user.id}/tasks/${taskId}`,
+      const response = await apiPut<Task>(
+        `/users/${user.id}/tasks/${taskId}`,
         taskData
       );
 
@@ -295,7 +295,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     try {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
-      await api.delete(`/api/users/${user.id}/tasks/${taskId}`);
+      await apiDelete(`/users/${user.id}/tasks/${taskId}`);
 
       dispatch({ type: TASK_ACTIONS.DELETE_TASK, payload: taskId });
       dispatch({ type: TASK_ACTIONS.CLEAR_ERROR });
@@ -314,8 +314,8 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     try {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
-      const response = await api.patch(
-        `/api/users/${user.id}/tasks/${taskId}/complete`,
+      const response = await apiPatch<Task>(
+        `/users/${user.id}/tasks/${taskId}/complete`,
         { completed }
       );
 
@@ -350,7 +350,11 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     refreshTasks,
   };
 
-  return <TaskContext.Provider value={contextValue}>{children}</TaskContext.Provider>;
+  return (
+    <TaskContext.Provider value={contextValue}>
+      {children}
+    </TaskContext.Provider>
+  );
 };
 
 // ============================================================================
