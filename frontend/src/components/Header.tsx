@@ -10,7 +10,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();

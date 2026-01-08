@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useTasks } from '@/hooks/useTasks';
-import { TaskForm } from '@/components/TaskForm';
-import { TaskList } from '@/components/TaskList';
-import { Task } from '@/types';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import { useAuth } from '../../hooks/useAuth';
+import { useTasks } from '../../hooks/useTasks';
+import { TaskForm } from '../../components/TaskForm';
+import { TaskList } from '../../components/TaskList';
+import { Task } from '../../types';
+import ProtectedRoute from '../../components/ProtectedRoute';
 
 const DashboardPage = () => {
   const { user } = useAuth();

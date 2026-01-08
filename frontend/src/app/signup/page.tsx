@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import AuthForm from '@/components/AuthForm';
+import { useAuth } from '../../hooks/useAuth';
+import AuthForm from '../../components/AuthForm';
 
 const SignupPage = () => {
   const router = useRouter();
