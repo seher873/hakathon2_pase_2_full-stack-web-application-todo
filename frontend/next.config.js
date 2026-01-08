@@ -6,12 +6,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    appDir: true,
-    // Enable turbopack explicitly to avoid conflicts
-    turbo: {},
-  },
-  // Remove webpack config for turbopack compatibility
 }
 
 module.exports = nextConfig
