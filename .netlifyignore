@@ -1,0 +1,10 @@
+backend/
+docs/
+specs/
+.history/
+CLAUDE.md
+IMPLEMENTATION_STATUS.md
+PHASE_2_COMPLETE.md
+PHASE_3_PROGRESS.md
+test_api.js
+test_frontend.js

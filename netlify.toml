@@ -1,0 +1,10 @@
+[build]
+  base = "frontend"
+  command = "npm run build && npm run export"
+  publish = "out"
+  environment = { NODE_VERSION = "18" }
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
