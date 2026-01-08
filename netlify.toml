@@ -1,8 +1,14 @@
 [build]
   base = "frontend"
-  command = "npm run build && npm run export"
-  publish = "out"
+  command = "npm run build"
+  publish = ".next"
   environment = { NODE_VERSION = "18" }
+
+[functions]
+  directory = "netlify/functions"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [[redirects]]
   from = "/*"
