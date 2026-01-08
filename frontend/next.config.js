@@ -8,16 +8,10 @@ const nextConfig = {
   },
   experimental: {
     appDir: true,
+    // Enable turbopack explicitly to avoid conflicts
+    turbo: {},
   },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-      };
-    }
-    return config;
-  },
+  // Remove webpack config for turbopack compatibility
 }
 
 module.exports = nextConfig
