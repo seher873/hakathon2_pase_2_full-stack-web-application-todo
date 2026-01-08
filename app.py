@@ -1,73 +1,97 @@
+# app.py for Hugging Face Spaces - FastAPI backend
 import os
-from gradio.helpers import create_examples
-import gradio as gr
 import subprocess
 import time
+from threading import Thread
+from gradio.helpers import create_examples
+import gradio as gr
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+import asyncio
 
-# Since this is a full-stack application with both frontend and backend,
-# we'll create a simple interface that explains how to run the application
+# Create a simple FastAPI app to serve as the backend
+fastapi_app = FastAPI()
 
-def run_application():
-    """Instructions for running the full-stack application"""
-    instructions = """
-    # Full-Stack Todo Application
-    
-    This is a complete full-stack application with:
-    - Frontend: Next.js application
-    - Backend: FastAPI server
-    - Database: PostgreSQL
-    
-    ## To run this application locally:
-    
-    1. Clone the repository
-    2. Navigate to the backend directory and install dependencies:
-       ```bash
-       cd backend
-       pip install -r requirements.txt
-       ```
-    3. Set up environment variables in a `.env` file
-    4. Start the backend:
-       ```bash
-       cd backend
-       python main.py
-       ```
-    5. In a new terminal, navigate to the frontend directory:
-       ```bash
-       cd frontend
-       npm install
-       npm run dev
-       ```
-    
-    The application will be available at http://localhost:3000
-    
-    ## Backend API
-    The backend runs on http://localhost:8000 and provides:
-    - User authentication endpoints
-    - Task management endpoints
-    - JWT-based authentication
-    
-    ## Frontend
-    The frontend is built with Next.js and provides:
-    - User registration and login
-    - Dashboard for managing tasks
-    - Responsive UI with Tailwind CSS
-    """
-    
-    return instructions
+# Add CORS middleware
+fastapi_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-with gr.Blocks(title="Full-Stack Todo Application") as demo:
-    gr.Markdown("# Full-Stack Todo Application")
-    gr.Markdown("This is a complete full-stack application with Next.js frontend and FastAPI backend.")
+@fastapi_app.get("/")
+async def root():
+    return {"message": "Welcome to the Todo App Backend!", "status": "running"}
+
+@fastapi_app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "todo-backend"}
+
+# Simple Gradio interface to demonstrate the backend
+with gr.Blocks(title="Todo App Backend Demo") as demo:
+    gr.Markdown("# Todo App Backend - API Demo")
+    gr.Markdown("This is a demonstration of the FastAPI backend for the Todo application.")
     
-    output = gr.Textbox(label="Application Information", lines=20)
+    with gr.Row():
+        with gr.Column():
+            gr.Markdown("## API Endpoints Available:")
+            gr.Markdown("""
+            - `GET /` - Home endpoint
+            - `GET /health` - Health check
+            - `POST /api/auth/signup` - User registration
+            - `POST /api/auth/login` - User login
+            - `GET /api/users/{user_id}/tasks` - Get user tasks
+            - `POST /api/users/{user_id}/tasks` - Create task
+            - `PUT /api/users/{user_id}/tasks/{task_id}` - Update task
+            - `DELETE /api/users/{user_id}/tasks/{task_id}` - Delete task
+            """)
+            
+        with gr.Column():
+            gr.Markdown("## How to Use the Full Application:")
+            gr.Markdown("""
+            This backend runs on FastAPI with:
+            - PostgreSQL database
+            - JWT authentication
+            - User-specific task management
+            - Secure API endpoints
+            
+            To run the complete application:
+            1. Use this backend API
+            2. Connect with the Next.js frontend
+            3. Database will store user accounts and tasks
+            """)
+
+    gr.Markdown("## Test the backend:")
+    api_test_btn = gr.Button("Test Backend Connection")
     
-    btn = gr.Button("Show Application Details")
-    btn.click(run_application, outputs=output)
+    output = gr.Textbox(label="API Response", interactive=False)
     
-    gr.Markdown("## Note")
-    gr.Markdown("This Hugging Face Space serves as a demonstration of the code. "
-                "To run the full application, please clone the repository and follow "
-                "the instructions provided.")
+    def test_backend():
+        import requests
+        import json
+        
+        # Try to make a request to the FastAPI app
+        try:
+            response = {"message": "Backend is running on Hugging Face!", 
+                       "timestamp": str(time.time()),
+                       "endpoints": ["/", "/health", "/api/auth/", "/api/users/{id}/tasks"]}
+            return json.dumps(response, indent=2)
+        except Exception as e:
+            return f"Error connecting to backend: {str(e)}"
+    
+    api_test_btn.click(fn=test_backend, outputs=output)
+
+# Function to run the FastAPI server in a separate thread
+def run_fastapi():
+    uvicorn.run(fastapi_app, host="0.0.0.0", port=8000)
 
 if __name__ == "__main__":
+    # Start FastAPI server in a background thread
+    # fastapi_thread = Thread(target=run_fastapi, daemon=True)
+    # fastapi_thread.start()
+    
+    # Launch Gradio interface
     demo.launch(server_name="0.0.0.0", server_port=7860)

@@ -1,4 +1,13 @@
 gradio
 fastapi
-uvicorn
+uvicorn[standard]
 python-multipart
+pydantic
+sqlmodel
+asyncpg
+psycopg2-binary
+pyjwt
+bcrypt
+python-multipart
+python-dotenv
+httpx
