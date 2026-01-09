@@ -1,6 +1,6 @@
 /**
  * Task list component for displaying user tasks.
- * 
+ *
  * Renders a list of tasks with filtering options and
  * integrates with the task management context.
  */
@@ -33,40 +33,41 @@ export const TaskList: React.FC<TaskListProps> = ({
   const pendingCount = tasks.length - completedCount;
 
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-md">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
       {/* Search and Filter Controls */}
-      <div className="bg-gray-50 px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between sm:px-6 border-b space-y-3 sm:space-y-0">
-        <div className="flex items-center">
-          <span className="mr-4 text-sm text-gray-700">
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="text-sm text-gray-600 bg-white px-3 py-1 rounded-lg shadow-sm border border-gray-200">
             {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
-          </span>
+          </div>
+
           <div className="flex space-x-2">
             <button
               onClick={() => onFilterChange('all')}
-              className={`px-3 py-1 text-xs font-medium rounded-full ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                 filter === 'all'
-                  ? 'bg-indigo-100 text-indigo-800'
-                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
               }`}
             >
               All ({tasks.length})
             </button>
             <button
               onClick={() => onFilterChange('pending')}
-              className={`px-3 py-1 text-xs font-medium rounded-full ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                 filter === 'pending'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  ? 'bg-amber-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
               }`}
             >
               Pending ({pendingCount})
             </button>
             <button
               onClick={() => onFilterChange('completed')}
-              className={`px-3 py-1 text-xs font-medium rounded-full ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                 filter === 'completed'
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  ? 'bg-green-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
               }`}
             >
               Completed ({completedCount})
@@ -76,8 +77,8 @@ export const TaskList: React.FC<TaskListProps> = ({
 
         {/* Search Input */}
         {onSearchChange && (
-          <div className="w-full sm:w-auto">
-            <div className="relative rounded-md shadow-sm">
+          <div className="w-full sm:w-64">
+            <div className="relative rounded-lg shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
@@ -87,7 +88,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-12 py-2 sm:text-sm border border-gray-300 rounded-md"
+                className="block w-full pl-10 pr-3 py-3 sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                 placeholder="Search tasks..."
               />
             </div>
@@ -97,11 +98,11 @@ export const TaskList: React.FC<TaskListProps> = ({
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 mx-4 mt-4">
-          <div className="flex">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mx-6 mt-4 rounded-lg bg-gradient-to-r from-red-50 to-red-100">
+          <div className="flex items-center">
             <div className="flex-shrink-0">
               <svg
-                className="h-5 w-5 text-red-400"
+                className="h-5 w-5 text-red-500"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -114,7 +115,7 @@ export const TaskList: React.FC<TaskListProps> = ({
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-700">{error}</p>
+              <p className="text-sm font-medium text-red-800">{error}</p>
             </div>
           </div>
         </div>
@@ -122,45 +123,53 @@ export const TaskList: React.FC<TaskListProps> = ({
 
       {/* Loading State */}
       {isLoading && !tasks.length && (
-        <div className="px-4 py-12 sm:px-6">
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="px-6 py-16">
+          <div className="flex flex-col items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-4"></div>
+            <p className="text-gray-500 text-lg">Loading your tasks...</p>
+            <p className="text-gray-400 text-sm mt-1">Please wait a moment</p>
           </div>
-          <p className="mt-4 text-center text-sm text-gray-500">Loading tasks...</p>
         </div>
       )}
 
       {/* Empty State */}
       {!isLoading && filteredTasks.length === 0 && (
-        <div className="px-4 py-12 sm:px-6 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-            />
-          </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No tasks</h3>
-          <p className="mt-1 text-sm text-gray-500">
+        <div className="px-6 py-16 text-center">
+          <div className="mx-auto w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-6">
+            <svg
+              className="w-12 h-12 text-gray-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
+          </div>
+          <h3 className="mt-2 text-xl font-semibold text-gray-900">No tasks yet</h3>
+          <p className="mt-2 text-gray-600 max-w-md mx-auto">
             {filter === 'completed'
-              ? "You haven't completed any tasks yet."
+              ? "You haven't completed any tasks yet. Start by creating a new task!"
               : filter === 'pending'
-              ? "You have no pending tasks. Great job!"
-              : "Get started by creating a new task."}
+              ? "You have no pending tasks. Great job staying on top of things!"
+              : "Get started by creating your first task."}
           </p>
+          {!filter || filter === 'all' && (
+            <p className="mt-2 text-sm text-gray-500">
+              Your tasks will appear here once you create them.
+            </p>
+          )}
         </div>
       )}
 
       {/* Task List */}
       {filteredTasks.length > 0 && (
-        <ul className="divide-y divide-gray-200">
+        <ul className="divide-y divide-gray-100">
           {filteredTasks.map((task) => (
             <TaskItem
               key={task.id}

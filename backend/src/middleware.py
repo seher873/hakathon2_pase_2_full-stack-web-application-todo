@@ -66,29 +66,25 @@ class LoggingMiddleware:
     def __init__(self, app):
         self.app = app
 
-    async def __call__(self, request: Request, call_next: Callable) -> Response:
+    async def __call__(self, scope, receive, send):
         """
         Process request and response with logging.
 
         Args:
-            request: FastAPI request object
-            call_next: Next middleware/route handler
-
-        Returns:
-            Response from handler
+            scope: ASGI scope
+            receive: ASGI receive function
+            send: ASGI send function
         """
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        request = Request(scope)
+
         # Record start time
         start_time = time.time()
 
         # Log request information
-        request_body = ""
-        if request.method in ["POST", "PUT", "PATCH"]:
-            try:
-                body = await request.body()
-                request_body = body.decode() if body else ""
-            except Exception:
-                request_body = "[Could not read body]"
-
         logger.info(
             f"→ {request.method} {request.url.path}",
             extra={
@@ -99,24 +95,31 @@ class LoggingMiddleware:
             },
         )
 
-        # Get response
-        response = await call_next(request)
+        # Create a custom sender to capture response status
+        response_status = None
+
+        async def capture_sender(message):
+            nonlocal response_status
+            if message["type"] == "http.response.start":
+                response_status = message["status"]
+            await send(message)
+
+        # Process the request
+        await self.app(scope, receive, capture_sender)
 
         # Calculate execution time
         execution_time = time.time() - start_time
 
         # Log response information
         logger.info(
-            f"← {response.status_code} {request.url.path} ({execution_time:.3f}s)",
+            f"← {response_status or 'unknown'} {request.url.path} ({execution_time:.3f}s)",
             extra={
                 "method": request.method,
                 "path": request.url.path,
-                "status_code": response.status_code,
+                "status_code": response_status,
                 "execution_time": execution_time,
             },
         )
-
-        return response
 
 
 class ErrorResponse:
