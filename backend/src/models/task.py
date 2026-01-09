@@ -4,13 +4,15 @@ Task model definition.
 Defines the Task entity with all required fields and relationships.
 """
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship
 from uuid import UUID
 from datetime import datetime
 
 from .base import BaseModel
-from .user import User
+
+if TYPE_CHECKING:
+    from .user import User
 
 
 class Task(BaseModel, table=True):
@@ -49,8 +51,8 @@ class Task(BaseModel, table=True):
         description="ID of the user who owns this task",
     )
 
-    # Relationship to User
-    user: User = Relationship(back_populates="tasks")
+    # Relationship to User - using string reference to avoid circular import
+    user: "User" = Relationship(back_populates="tasks")
 
 
 class TaskCreate(BaseModel):

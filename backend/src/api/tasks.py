@@ -29,7 +29,6 @@ router = APIRouter(prefix="/users/{user_id}/tasks", tags=["tasks"])
 
 @router.post(
     "/",
-    response_model=SuccessResponse[TaskResponse],
     status_code=status.HTTP_201_CREATED,
     summary="Create Task",
     responses={
@@ -94,7 +93,6 @@ async def create_task(
 
 @router.get(
     "/",
-    response_model=SuccessResponse[TaskListResponse],
     status_code=status.HTTP_200_OK,
     summary="Get User Tasks",
     responses={
@@ -210,7 +208,6 @@ async def get_tasks(
 
 @router.get(
     "/{task_id}",
-    response_model=SuccessResponse[TaskResponse],
     status_code=status.HTTP_200_OK,
     summary="Get Task",
     responses={
@@ -283,7 +280,6 @@ async def get_task(
 
 @router.put(
     "/{task_id}",
-    response_model=SuccessResponse[TaskResponse],
     status_code=status.HTTP_200_OK,
     summary="Update Task",
     responses={
@@ -360,7 +356,6 @@ async def update_task(
 
 @router.patch(
     "/{task_id}/complete",
-    response_model=SuccessResponse[TaskResponse],
     status_code=status.HTTP_200_OK,
     summary="Mark Task Complete/Incomplete",
     responses={

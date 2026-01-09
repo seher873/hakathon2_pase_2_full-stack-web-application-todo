@@ -133,6 +133,21 @@ from src.api.tasks import router as tasks_router
 app.include_router(tasks_router, prefix="/api", tags=["tasks"])
 
 
+# ============================================================================
+# AI Skills Routes
+# ============================================================================
+
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))  # Add backend directory to path
+
+try:
+    from backend.skills.api import router as ai_skills_router
+    app.include_router(ai_skills_router, prefix="/api", tags=["ai-skills"])
+except ImportError:
+    logger.warning("AI Skills module not available")
+
+
 if __name__ == "__main__":
     import uvicorn
 

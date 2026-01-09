@@ -8,7 +8,7 @@ but the backend tracks user_id to scope task ownership.
 from sqlmodel import SQLModel, Field, Relationship
 from uuid import UUID
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from .base import BaseModel
 
@@ -27,7 +27,7 @@ class UserBase(SQLModel):
     )
 
 
-class User(BaseModel, UserBase, table=True):
+class User(BaseModel, table=True):
     """
     User database model.
 
@@ -48,17 +48,27 @@ class User(BaseModel, UserBase, table=True):
     # Email index for fast lookups
     # Index automatically created by Field(index=True)
 
+    # Email field
+    email: str = Field(
+        index=True,
+        unique=True,
+        max_length=255,
+        description="User email address (unique)",
+    )
+
     # Password hash field
     password_hash: str = Field(
         max_length=255,
         description="Hashed password",
     )
 
-    # Relationship to tasks
-    tasks: List["Task"] = Relationship(back_populates="user")
+    # Relationship to tasks - using string reference to avoid circular import
+    tasks: List["Task"] = Relationship(
+        back_populates="user"
+    )
 
 
-class UserCreate(UserBase):
+class UserCreate(SQLModel):
     """
     Schema for user creation (signup request).
 
@@ -66,6 +76,12 @@ class UserCreate(UserBase):
     Password is NOT stored in our database - Better Auth handles it.
     """
 
+    email: str = Field(
+        index=True,
+        unique=True,
+        max_length=255,
+        description="User email address (unique)",
+    )
     password: str = Field(
         min_length=8,
         max_length=128,
@@ -78,7 +94,7 @@ class UserCreate(UserBase):
     )
 
 
-class UserResponse(UserBase):
+class UserResponse(SQLModel):
     """
     Schema for user in API responses.
 
@@ -87,6 +103,9 @@ class UserResponse(UserBase):
     """
 
     id: UUID = Field(description="User ID")
+    email: str = Field(
+        description="User email address",
+    )
     created_at: datetime = Field(description="Account creation timestamp")
 
     class Config:
@@ -95,11 +114,5 @@ class UserResponse(UserBase):
         from_attributes = True  # Support ORM mode
 
 
-class UserInDB(User):
-    """
-    User model as stored in database.
-
-    Used internally by services - not exposed in API responses.
-    """
-
-    pass
+# UserInDB is not needed anymore since User already serves as the database model
+# We can just use User directly where UserInDB was referenced

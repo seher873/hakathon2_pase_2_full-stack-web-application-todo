@@ -23,19 +23,24 @@ def get_async_engine():
     if settings.database_url.startswith("sqlite"):
         # For SQLite, use aiosqlite driver
         db_url = settings.database_url.replace("sqlite:///", "sqlite+aiosqlite:///")
+        # SQLite doesn't support connection pooling parameters
+        return create_async_engine(
+            db_url,
+            echo=settings.debug,
+            future=True,
+        )
     else:
         # For PostgreSQL, use asyncpg driver
         db_url = settings.database_url.replace("postgresql://", "postgresql+asyncpg://")
-
-    return create_async_engine(
-        db_url,
-        echo=settings.debug,
-        future=True,
-        pool_size=5,
-        max_overflow=10,
-        pool_pre_ping=True,  # Verify connections are alive
-        pool_recycle=3600,   # Recycle connections after 1 hour
-    )
+        return create_async_engine(
+            db_url,
+            echo=settings.debug,
+            future=True,
+            pool_size=5,
+            max_overflow=10,
+            pool_pre_ping=True,  # Verify connections are alive
+            pool_recycle=3600,   # Recycle connections after 1 hour
+        )
 
 
 # Create the engine instance

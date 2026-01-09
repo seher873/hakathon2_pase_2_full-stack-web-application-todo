@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Temporarily remove output: 'export' to see if build works without static generation
-  // output: 'export', // This is already set in your netlify.toml
-  // trailingSlash: true,
+  output: 'export', // Keep the export for static site generation
+  trailingSlash: true,
 
   // Handle the dynamic routes that use client-side hooks
   async redirects() {

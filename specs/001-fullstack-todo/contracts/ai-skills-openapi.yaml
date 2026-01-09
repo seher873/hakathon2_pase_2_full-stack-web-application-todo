@@ -1,0 +1,249 @@
+openapi: 3.0.3
+info:
+  title: AI Skills API for Todo Application
+  description: AI Skills layer that processes natural language requests and maps them to existing backend APIs
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api
+    description: Development server
+  - url: https://api.example.com/api
+    description: Production server
+
+paths:
+  /ai/process:
+    post:
+      summary: Process natural language request
+      description: Takes a natural language input and executes the appropriate skill
+      operationId: processNaturalLanguage
+      tags:
+        - ai-skills
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIRequest'
+            example:
+              input: "Add buy milk"
+      responses:
+        '200':
+          description: Successfully processed the natural language request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                status: "success"
+                data:
+                  skill: "create_task"
+                  success: true
+                  message: "Task 'buy milk' created successfully"
+                  data:
+                    status: "success"
+                    data:
+                      id: "123e4567-e89b-12d3-a456-426614174000"
+                      title: "buy milk"
+                      description: null
+                      completed: false
+                      user_id: "123e4567-e89b-12d3-a456-426614174001"
+                      created_at: "2026-01-09T16:00:00Z"
+                      updated_at: "2026-01-09T16:00:00Z"
+                    timestamp: "2026-01-09T16:00:00Z"
+                timestamp: "2026-01-09T16:00:00Z"
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error during AI processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ai/skills:
+    get:
+      summary: Get available AI skills
+      description: Returns a list of available AI skills with examples
+      operationId: getAvailableSkills
+      tags:
+        - ai-skills
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved available skills
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                status: "success"
+                data:
+                  - name: "create_task"
+                    description: "Create a new task"
+                    examples:
+                      - "Add buy milk"
+                      - "Create task finish report"
+                      - "New task call mom"
+                  - name: "list_tasks"
+                    description: "List all your tasks"
+                    examples:
+                      - "Show my tasks"
+                      - "List my tasks"
+                      - "What tasks do I have?"
+                  - name: "complete_task"
+                    description: "Mark a task as complete"
+                    examples:
+                      - "Complete buy milk"
+                      - "Finish report task"
+                      - "Mark grocery shopping done"
+                timestamp: "2026-01-09T16:00:00Z"
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AIRequest:
+      type: object
+      required:
+        - input
+      properties:
+        input:
+          type: string
+          description: Natural language input from the user
+          example: "Add buy milk"
+          minLength: 1
+          maxLength: 1000
+
+    SuccessResponse:
+      type: object
+      required:
+        - status
+        - data
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [success]
+          example: "success"
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/AIProcessResult'
+            - type: array
+              items:
+                $ref: '#/components/schemas/SkillInfo'
+            - description: "Other API response data"
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp
+          example: "2026-01-09T16:00:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - status
+        - code
+        - message
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [error]
+          example: "error"
+        code:
+          type: string
+          description: Error code
+          example: "AI_PROCESSING_ERROR"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Failed to process AI request"
+        details:
+          type: object
+          description: Optional error details
+          nullable: true
+          example: {}
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp
+          example: "2026-01-09T16:00:00Z"
+
+    AIProcessResult:
+      type: object
+      required:
+        - skill
+        - success
+        - message
+      properties:
+        skill:
+          type: string
+          description: The skill that was executed
+          enum: [create_task, list_tasks, complete_task, unknown]
+          example: "create_task"
+        success:
+          type: boolean
+          description: Whether the skill execution was successful
+          example: true
+        message:
+          type: string
+          description: Human-readable result message
+          example: "Task 'buy milk' created successfully"
+        data:
+          type: object
+          description: The response from the underlying API call
+          example: {}
+
+    SkillInfo:
+      type: object
+      required:
+        - name
+        - description
+        - examples
+      properties:
+        name:
+          type: string
+          description: The skill name
+          example: "create_task"
+        description:
+          type: string
+          description: Description of what the skill does
+          example: "Create a new task"
+        examples:
+          type: array
+          description: Examples of natural language inputs that trigger this skill
+          items:
+            type: string
+            example: "Add buy milk"
+
+tags:
+  - name: ai-skills
+    description: AI-powered natural language processing endpoints

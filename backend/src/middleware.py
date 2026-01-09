@@ -8,13 +8,16 @@ cross-cutting concerns for the API.
 import logging
 import time
 import json
-from typing import Callable
+from typing import Callable, Generic, TypeVar, Dict, Any
 from datetime import datetime
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
 from src.config import settings
+
+# Define type variable for generic responses
+T = TypeVar('T')
 
 # Configure logging
 logging.basicConfig(
@@ -144,12 +147,14 @@ class ErrorResponse:
         }
 
 
-class SuccessResponse:
+from typing import Generic
+
+class SuccessResponse(Generic[T]):
     """Standard success response format."""
 
     def __init__(
         self,
-        data=None,
+        data: T = None,
         status: str = "success",
         timestamp: str = None,
     ):
@@ -157,7 +162,7 @@ class SuccessResponse:
         self.data = data
         self.timestamp = timestamp or datetime.utcnow().isoformat()
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """Convert success response to dictionary."""
         return {
             "status": self.status,
