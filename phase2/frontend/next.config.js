@@ -1,0 +1,15 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Comment out output: 'export' for development mode
+  // output: 'export', // Keep the export for static site generation
+  trailingSlash: true,
+
+  // Handle the dynamic routes that use client-side hooks
+  async redirects() {
+    return [
+      // Redirect any problematic routes if needed
+    ]
+  }
+};
+
+module.exports = nextConfig;
