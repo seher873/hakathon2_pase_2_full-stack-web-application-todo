@@ -19,7 +19,7 @@ import {
   getToken,
   getUser,
 } from "@/utils/storage";
-import { signup as authSignup, login as authLogin } from "@/lib/auth";
+import { signup as authSignup, login as authLogin } from "../lib/auth";
 
 /**
  * Initial auth state.
