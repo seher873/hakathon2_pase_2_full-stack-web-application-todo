@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Comment out output: 'export' for development mode
-  // output: 'export', // Keep the export for static site generation
+  output: 'export', // Enable static site generation
   trailingSlash: true,
 
   // Handle the dynamic routes that use client-side hooks

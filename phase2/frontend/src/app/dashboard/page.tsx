@@ -3,19 +3,19 @@
 import { useState } from 'react';
 import { TaskForm } from '@/components/TaskForm';
 import { TaskList } from '@/components/TaskList';
-import { useTasks } from '../hooks/useTasks';
+import { useTasks } from '@/hooks/useTasks';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { tasks, isLoading, error, addTask, updateTask, deleteTask } = useTasks();
+  const { tasks, isLoading, error, createTask, updateTask, deleteTask, toggleTaskComplete } = useTasks();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
 
   const handleAddTask = async (taskData) => {
     try {
-      await addTask(taskData);
+      await createTask(taskData);
       setShowAddForm(false);
     } catch (err) {
       // Error is handled by the hook
@@ -42,7 +42,7 @@ export default function DashboardPage() {
     setEditingTask(null);
   };
 
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter tasks based on the selected filter
@@ -103,7 +103,7 @@ export default function DashboardPage() {
               isLoading={isLoading}
               error={error}
               onDelete={deleteTask}
-              onToggleComplete={updateTask}
+              onToggleComplete={toggleTaskComplete}
               onEdit={handleEditClick}
               filter={filter}
               onFilterChange={setFilter}
