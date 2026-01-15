@@ -1,7 +1,7 @@
 [build]
-  base = "phase2/frontend"
-  publish = "out"
-  command = "npm install && npm run build"
+  base = ""
+  publish = "phase2/frontend/out"
+  command = "bash build.sh"
 
 [build.environment]
   NODE_VERSION = "20"
