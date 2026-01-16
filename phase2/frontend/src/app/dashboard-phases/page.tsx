@@ -10,8 +10,8 @@ import Link from 'next/link';
 const phases = [
   {
     id: 1,
-    title: "Console App",
-    description: "Python CLI with Add, Update, Delete, View, Complete tasks",
+    title: "Foundation",
+    description: "Setting up the project foundation, including repository structure, environment configuration, and core application logic. The goal was to establish a clean, scalable base for future phases.",
     points: 100,
     icon: CheckCircle,
     color: "bg-blue-100",
@@ -19,8 +19,8 @@ const phases = [
   },
   {
     id: 2,
-    title: "Web UI",
-    description: "React frontend with CRUD operations and user authentication",
+    title: "Application Development",
+    description: "Deliver a complete working application with frontend and backend integration. This included user authentication, database operations, and deployment of both the frontend and backend as public services.",
     points: 200,
     icon: Code,
     color: "bg-green-100",
@@ -28,8 +28,8 @@ const phases = [
   },
   {
     id: 3,
-    title: "AI Integration",
-    description: "Natural language processing for task management",
+    title: "AI System (Skills & Agents)",
+    description: "Introduction of the AI orchestration layer. Using SpecKit, AI skills and sub-agents were formally specified, planned, and implemented to safely interpret user intent, plan actions, execute tasks, and validate results.",
     points: 300,
     icon: Brain,
     color: "bg-purple-100",
@@ -37,8 +37,8 @@ const phases = [
   },
   {
     id: 4,
-    title: "Cloud Deployment",
-    description: "Deploy application to cloud infrastructure",
+    title: "Build/Implement",
+    description: "Implementation of the planned system with focus on code quality, testing, and integration.",
     points: 400,
     icon: Cloud,
     color: "bg-indigo-100",
@@ -46,8 +46,8 @@ const phases = [
   },
   {
     id: 5,
-    title: "Advanced Features",
-    description: "Notifications, reminders, and analytics",
+    title: "Validate & Polish",
+    description: "Prove the system is correct, safe, and clear with extensive testing, validation, and polish.",
     points: 500,
     icon: Zap,
     color: "bg-yellow-100",
@@ -55,8 +55,8 @@ const phases = [
   },
   {
     id: 6,
-    title: "Final Polish",
-    description: "UI/UX improvements and performance optimizations",
+    title: "Final Deployment",
+    description: "Production deployment, monitoring setup, and final delivery of the complete system.",
     points: 600,
     icon: Trophy,
     color: "bg-pink-100",

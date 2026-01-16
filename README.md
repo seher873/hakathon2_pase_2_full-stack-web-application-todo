@@ -6,12 +6,12 @@ This project follows a spec-driven, multi-phase approach to building a task mana
 
 The project is organized into multiple phases as per the AI Constitution:
 
-### Phase 1: Explore
-- Purpose: Understand the problem space and explore ideas
+### Phase 1: Foundation
+- Purpose: Setting up the project foundation, including repository structure, environment configuration, and core application logic. The goal was to establish a clean, scalable base for future phases.
 - Status: Completed
 
-### Phase 2: Specify (Current Implementation)
-- Purpose: Define WHAT must be built
+### Phase 2: Application Development
+- Purpose: Deliver a complete working application with frontend and backend integration. This included user authentication, database operations, and deployment of both the frontend and backend as public services.
 - Status: Active Development
 
 #### Phase 2 Architecture:
@@ -62,8 +62,8 @@ phase2/
 - User management
 - Pydantic schema validation
 
-### Phase 3: Plan
-- Purpose: Define HOW the system will be built
+### Phase 3: AI System (Skills & Agents)
+- Purpose: Introduced the AI orchestration layer. Using SpecKit, AI skills and sub-agents were formally specified, planned, and implemented to safely interpret user intent, plan actions, execute tasks, and validate results.
 - Status: Planned
 
 ### Phase 4: Build/Implement
