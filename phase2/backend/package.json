@@ -1,0 +1,42 @@
+{
+  "name": "hackathon-phase2-backend",
+  "version": "1.0.0",
+  "description": "Phase 2 Backend for Hackathon - Node.js/TypeScript/Express with BetterAuth",
+  "main": "dist/server.js",
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "dev:ts-node": "ts-node src/server.ts"
+  },
+  "keywords": [
+    "nodejs",
+    "typescript",
+    "express",
+    "betterauth",
+    "postgresql",
+    "neon"
+  ],
+  "author": "Hackathon Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "better-auth": "^0.3.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.10.0",
+    "@types/pg": "^8.11.6",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

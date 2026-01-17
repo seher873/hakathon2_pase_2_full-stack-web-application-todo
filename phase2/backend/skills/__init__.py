@@ -1,3 +1,0 @@
-"""
-AI Skills package initialization.
-"""

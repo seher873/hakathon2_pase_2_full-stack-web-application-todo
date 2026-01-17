@@ -208,3 +208,10 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Active Technologies
+- TypeScript 5.3.3, Node.js 24.12.0 + Express, PostgreSQL, jsonwebtoken, bcrypt, cors, dotenv (001-validation-skill)
+- PostgreSQL database hosted on Neon (001-validation-skill)
+
+## Recent Changes
+- 001-validation-skill: Added TypeScript 5.3.3, Node.js 24.12.0 + Express, PostgreSQL, jsonwebtoken, bcrypt, cors, dotenv
