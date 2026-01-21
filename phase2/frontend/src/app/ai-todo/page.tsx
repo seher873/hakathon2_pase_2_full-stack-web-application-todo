@@ -8,8 +8,10 @@ import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { processAICommand } from './actions';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function AITodoLandingPage() {
+  const { token, isAuthenticated } = useAuth();
   const [command, setCommand] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -17,13 +19,13 @@ export default function AITodoLandingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!command.trim() || isLoading) return;
+    if (!command.trim() || isLoading || !isAuthenticated || !token) return;
 
     setIsLoading(true);
     setResult(null);
 
     try {
-      const response = await processAICommand(command);
+      const response = await processAICommand(command, token);
       setResult(response);
 
       if (response.success) {
@@ -103,42 +105,50 @@ export default function AITodoLandingPage() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="max-w-xl mx-auto"
           >
-            <form onSubmit={handleSubmit}>
-              <div className="relative">
-                <Input
-                  ref={inputRef}
-                  type="text"
-                  value={command}
-                  onChange={(e) => setCommand(e.target.value)}
-                  placeholder="Type your task here... (e.g., 'Add buy milk', 'Show my tasks', 'Complete task')"
-                  className="w-full py-6 pl-6 pr-20 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-300/30 text-white placeholder:text-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
-                  disabled={isLoading}
-                />
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  type="submit"
-                  disabled={!command.trim() || isLoading}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-500 hover:bg-purple-600 text-white"
-                >
-                  {isLoading ? 'Processing...' : 'Send'}
-                </Button>
+            {!isAuthenticated ? (
+              <div className="mt-4 p-4 rounded-lg text-center bg-yellow-500/20 text-yellow-100 border border-yellow-400/30">
+                Please <Link href="/login" className="underline">sign in</Link> to use AI commands.
               </div>
-            </form>
+            ) : (
+              <>
+                <form onSubmit={handleSubmit}>
+                  <div className="relative">
+                    <Input
+                      ref={inputRef}
+                      type="text"
+                      value={command}
+                      onChange={(e) => setCommand(e.target.value)}
+                      placeholder="Type your task here... (e.g., 'Add buy milk', 'Show my tasks', 'Complete task')"
+                      className="w-full py-6 pl-6 pr-20 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-300/30 text-white placeholder:text-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+                      disabled={isLoading}
+                    />
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      type="submit"
+                      disabled={!command.trim() || isLoading}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-500 hover:bg-purple-600 text-white"
+                    >
+                      {isLoading ? 'Processing...' : 'Send'}
+                    </Button>
+                  </div>
+                </form>
 
-            {/* Result message */}
-            {result && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`mt-4 p-4 rounded-lg text-center ${
-                  result.success
-                    ? 'bg-green-500/20 text-green-100 border border-green-400/30'
-                    : 'bg-red-500/20 text-red-100 border border-red-400/30'
-                }`}
-              >
-                {result.message}
-              </motion.div>
+                {/* Result message */}
+                {result && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`mt-4 p-4 rounded-lg text-center ${
+                      result.success
+                        ? 'bg-green-500/20 text-green-100 border border-green-400/30'
+                        : 'bg-red-500/20 text-red-100 border border-red-400/30'
+                    }`}
+                  >
+                    {result.message}
+                  </motion.div>
+                )}
+              </>
             )}
 
             {/* Example commands */}

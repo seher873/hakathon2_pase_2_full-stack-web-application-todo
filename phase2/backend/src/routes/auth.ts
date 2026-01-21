@@ -37,13 +37,15 @@ router.post('/register', async (req: Request, res: Response) => {
     const token = generateToken(user.id, user.email);
 
     res.status(201).json({
-      message: 'User registered successfully',
-      user: {
-        id: user.id,
-        email: user.email,
-        createdAt: user.created_at
+      data: {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          created_at: user.created_at
+        }
       },
-      token
+      message: 'User registered successfully'
     });
     return; // Explicit return to satisfy TS compiler
   } catch (error: any) {
@@ -89,12 +91,14 @@ router.post('/login', async (req: Request, res: Response) => {
     const token = generateToken(user.id, user.email);
 
     res.status(200).json({
-      message: 'Login successful',
-      user: {
-        id: user.id,
-        email: user.email
+      data: {
+        token,
+        user: {
+          id: user.id,
+          email: user.email
+        }
       },
-      token
+      message: 'Login successful'
     });
     return; // Explicit return to satisfy TS compiler
   } catch (error: any) {

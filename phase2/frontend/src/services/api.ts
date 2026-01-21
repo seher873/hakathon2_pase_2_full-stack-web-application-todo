@@ -24,7 +24,7 @@ import { getAuthHeader } from "@/utils/storage";
 // ============================================================================
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 // ============================================================================
 // Error Handling
@@ -131,7 +131,9 @@ function prepareFetchOptions(
  * @returns Full URL with query string
  */
 function buildUrl(path: string, params?: Record<string, unknown>): string {
-  const url = new URL(`${API_URL}${path}`);
+  // Add /api prefix to the path if it doesn't already start with /api
+  const normalizedPath = path.startsWith('/api') ? path : `/api${path}`;
+  const url = new URL(`${API_URL}${normalizedPath}`);
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -349,89 +351,73 @@ export async function checkHealth(): Promise<SuccessResponse<unknown>> {
 /**
  * List all tasks for authenticated user.
  *
- * @param userId - User ID
- * @param filter - Task filter (all, pending, completed)
  * @returns List of tasks
  */
-export async function listTasks(
-  userId: UUID,
-  filter?: "pending" | "completed"
-): Promise<SuccessResponse<Task[]>> {
-  const params = filter ? { completed: filter === "completed" } : {};
-  return apiGet<Task[]>(`/users/${userId}/tasks`, params);
+export async function listTasks(): Promise<SuccessResponse<Task[]>> {
+  return apiGet<Task[]>(`/tasks`);
 }
 
 /**
  * Get single task details.
  *
- * @param userId - User ID
  * @param taskId - Task ID
  * @returns Task details
  */
 export async function getTask(
-  userId: UUID,
   taskId: UUID
 ): Promise<SuccessResponse<Task>> {
-  return apiGet<Task>(`/users/${userId}/tasks/${taskId}`);
+  return apiGet<Task>(`/tasks/${taskId}`);
 }
 
 /**
  * Create new task.
  *
- * @param userId - User ID
  * @param data - Task creation data
  * @returns Created task
  */
 export async function createTask(
-  userId: UUID,
   data: CreateTaskRequest
 ): Promise<SuccessResponse<Task>> {
-  return apiPost<Task>(`/users/${userId}/tasks`, data);
+  return apiPost<Task>(`/tasks`, data);
 }
 
 /**
  * Update existing task.
  *
- * @param userId - User ID
  * @param taskId - Task ID
  * @param data - Task update data
  * @returns Updated task
  */
 export async function updateTask(
-  userId: UUID,
   taskId: UUID,
   data: UpdateTaskRequest
 ): Promise<SuccessResponse<Task>> {
-  return apiPut<Task>(`/users/${userId}/tasks/${taskId}`, data);
+  return apiPut<Task>(`/tasks/${taskId}`, data);
 }
 
 /**
  * Delete task.
  *
- * @param userId - User ID
  * @param taskId - Task ID
  */
 export async function deleteTask(
-  userId: UUID,
   taskId: UUID
 ): Promise<void> {
-  return apiDelete(`/users/${userId}/tasks/${taskId}`);
+  return apiDelete(`/tasks/${taskId}`);
 }
 
 /**
  * Mark task as complete or incomplete.
  *
- * @param userId - User ID
  * @param taskId - Task ID
  * @param completed - Completion status
  * @returns Updated task
  */
 export async function markTaskComplete(
-  userId: UUID,
   taskId: UUID,
   completed: boolean
 ): Promise<SuccessResponse<Task>> {
-  return apiPatch<Task>(`/users/${userId}/tasks/${taskId}/complete`, {
+  return apiPatch<Task>(`/tasks/${taskId}/complete`, {
     completed,
   });
 }

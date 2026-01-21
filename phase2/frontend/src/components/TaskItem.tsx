@@ -84,6 +84,20 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         </div>
 
         <div className="flex items-center space-x-1 md:space-x-2 flex-shrink-0 mt-2 md:mt-0">
+          {task.url && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.open(task.url, '_blank')}
+              disabled={isLoading}
+              className="h-8 w-8 p-0"
+              title="Open link"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"

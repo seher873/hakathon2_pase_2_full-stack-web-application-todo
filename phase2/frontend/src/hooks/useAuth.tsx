@@ -33,7 +33,7 @@ const initialState: AuthState = {
 };
 
 interface AuthContextType extends AuthState {
-  signup: (email: string, password: string, passwordConfirm: string) => Promise<void>;
+  signup: (email: string, password: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
@@ -122,11 +122,10 @@ function useAuthProvider() {
    *
    * @param email - User email
    * @param password - User password
-   * @param passwordConfirm - Password confirmation
    * @throws Error if signup fails
    */
   const signup = useCallback(
-    async (email: string, password: string, passwordConfirm: string) => {
+    async (email: string, password: string) => {
       setState((prev) => ({
         ...prev,
         isLoading: true,
@@ -134,7 +133,7 @@ function useAuthProvider() {
       }));
 
       try {
-        const { token, user } = await authSignup(email, password, passwordConfirm);
+        const { token, user } = await authSignup(email, password);
 
         // Save session
         saveSession(token, {

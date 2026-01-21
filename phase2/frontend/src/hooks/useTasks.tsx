@@ -200,40 +200,38 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     try {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
-      // Determine query parameters based on filter
-      let completedFilter: boolean | undefined;
-      switch (state.filter) {
-        case 'completed':
-          completedFilter = true;
-          break;
-        case 'pending':
-          completedFilter = false;
-          break;
-        default:
-          completedFilter = undefined;
-      }
-
-      // Prepare query parameters
-      const queryParams: any = {
-        completed: completedFilter,
-        limit: 100,
-        offset: 0,
-      };
-
-      // Add search query if present
-      if (state.searchQuery.trim()) {
-        queryParams.search = state.searchQuery.trim();
-      }
-
       // Fetch tasks from API
-      const response = await apiGet<{ tasks: Task[]; total: number }>(`/users/${user.id}/tasks`, queryParams);
+      const response = await apiGet<{ data: Task[] }>(`/tasks`);
 
       if (response.status === 'success' && response.data) {
+        // Filter tasks client-side based on the state filter
+        let filteredTasks = response.data;
+
+        switch (state.filter) {
+          case 'completed':
+            filteredTasks = response.data.filter(task => task.completed);
+            break;
+          case 'pending':
+            filteredTasks = response.data.filter(task => !task.completed);
+            break;
+          default:
+            filteredTasks = response.data;
+        }
+
+        // Apply search query if present
+        if (state.searchQuery.trim()) {
+          const searchTerm = state.searchQuery.trim().toLowerCase();
+          filteredTasks = filteredTasks.filter(task =>
+            task.title.toLowerCase().includes(searchTerm) ||
+            (task.description && task.description.toLowerCase().includes(searchTerm))
+          );
+        }
+
         dispatch({
           type: TASK_ACTIONS.SET_TASKS,
           payload: {
-            tasks: response.data.tasks,
-            total: response.data.total,
+            tasks: filteredTasks,
+            total: filteredTasks.length,
           },
         });
       }
@@ -253,7 +251,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     try {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
-      const response = await apiPost<Task>(`/users/${user.id}/tasks`, taskData);
+      const response = await apiPost<Task>(`/tasks`, taskData);
 
       if (response.status === 'success' && response.data) {
         dispatch({ type: TASK_ACTIONS.ADD_TASK, payload: response.data });
@@ -275,7 +273,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
       const response = await apiPut<Task>(
-        `/users/${user.id}/tasks/${taskId}`,
+        `/tasks/${taskId}`,
         taskData
       );
 
@@ -295,7 +293,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     try {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
-      await apiDelete(`/users/${user.id}/tasks/${taskId}`);
+      await apiDelete(`/tasks/${taskId}`);
 
       dispatch({ type: TASK_ACTIONS.DELETE_TASK, payload: taskId });
       dispatch({ type: TASK_ACTIONS.CLEAR_ERROR });
@@ -315,7 +313,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
       const response = await apiPatch<Task>(
-        `/users/${user.id}/tasks/${taskId}/complete`,
+        `/tasks/${taskId}/complete`,
         { completed }
       );
 

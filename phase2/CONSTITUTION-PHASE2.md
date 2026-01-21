@@ -5,6 +5,7 @@
 The core application providing essential task management functionality with a beautiful, responsive UI.
 Transformed from Python/FastAPI to Node.js/TypeScript/Express with JWT authentication and PostgreSQL.
 
+
 ### Structure
 ```
 phase2/

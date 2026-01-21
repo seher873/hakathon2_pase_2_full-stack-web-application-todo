@@ -1,43 +1,59 @@
-# Implementation Plan: Phase-2 Backend
+# Implementation Plan: [FEATURE]
 
-**Branch**: `001-validation-skill` | **Date**: 2026-01-17 | **Spec**: [link]
-
-**Input**: Feature specification from `/specs/001-validation-skill/spec.md`
+**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
 **Note**: This template is filled in by the `/sp.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-Implementation of a Node.js/TypeScript/Express backend with PostgreSQL (Neon) database and custom JWT authentication system. The backend provides user authentication, task management, and secure API endpoints ready for frontend integration.
+Implementation of Phase-III AI Layer for Todo Application featuring natural language task management using skills and sub-agents. The system consists of three main components: Intent Agent for parsing natural language input, Planning Agent for determining skill execution sequences, and Execution Agent for interfacing with the Phase-2 backend APIs. All operations enforce JWT authentication and user isolation while preventing direct database access.
 
 ## Technical Context
+
+<!--
+  ACTION REQUIRED: Replace the content in this section with the technical details
+  for the project. The structure here is presented in advisory capacity to guide
+  the iteration process.
+-->
 
 **Language/Version**: TypeScript 5.3.3, Node.js 24.12.0
 **Primary Dependencies**: Express, PostgreSQL, jsonwebtoken, bcrypt, cors, dotenv
 **Storage**: PostgreSQL database hosted on Neon
-**Testing**: Manual API testing with curl, will add Jest for automated tests
-**Target Platform**: Linux server, cross-platform compatibility
-**Project Type**: Backend web API
-**Performance Goals**: Sub-second API response times, support multiple concurrent users
-**Constraints**: Must connect to Neon PostgreSQL, use environment variables for secrets, secure authentication
-**Scale/Scope**: Support 100+ users, handle typical task management loads
+**Testing**: Jest for unit/integration tests
+**Target Platform**: Linux server environment (Node.js runtime)
+**Project Type**: Web application with AI orchestration layer
+**Performance Goals**: <200ms p95 response time for natural language processing, 90%+ intent recognition accuracy
+**Constraints**: JWT token validation required for all operations, user isolation enforcement, no direct database access
+**Scale/Scope**: Individual user task management with natural language interface
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- [PASS] Uses specified tech stack: Node.js, TypeScript, Express
-- [PASS] Integrates with PostgreSQL (Neon) as required
-- [PASS] Implements authentication system with JWT tokens
-- [PASS] Uses environment variables for configuration
-- [PASS] Maintains separation from other phases (Phase-1, Phase-3)
+### Pre-Design Check
+1. **SDD Compliance**: Plan aligns with feature specification from spec.md - CHECK
+2. **Architecture Documentation**: All significant decisions will be captured in ADRs - CHECK
+3. **Test-First Approach**: Implementation will follow TDD principles with tests before code - CHECK
+4. **Small Changes**: Each commit will deliver one logical change and reference spec/task - CHECK
+5. **Observability**: System will emit structured logs for all significant operations - CHECK
+6. **Security**: JWT authentication and user isolation will be enforced throughout - CHECK
+7. **Spec Compliance**: Implementation will match approved spec without unauthorized additions - CHECK
+
+### Post-Design Check
+1. **SDD Compliance**: Plan aligns with feature specification and design artifacts - CHECK
+2. **Architecture Documentation**: Significant decisions documented in research.md - CHECK
+3. **Data Model**: Entities and relationships defined in data-model.md - CHECK
+4. **API Contracts**: Interfaces defined in contracts/ - CHECK
+5. **Quickstart Guide**: Implementation path documented in quickstart.md - CHECK
+6. **Agent Context**: Technology stack integrated into agent context - CHECK
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-validation-skill/
+specs/[###-feature]/
 ├── plan.md              # This file (/sp.plan command output)
 ├── research.md          # Phase 0 output (/sp.plan command)
 ├── data-model.md        # Phase 1 output (/sp.plan command)
@@ -49,25 +65,40 @@ specs/001-validation-skill/
 ### Source Code (repository root)
 
 ```text
-phase-2/backend/
-├── src/
-│   ├── server.ts              # Main application entry point
-│   ├── services/
-│   │   └── database.ts        # PostgreSQL connection pool
-│   ├── middleware/
-│   │   └── auth.ts            # JWT authentication middleware
-│   ├── routes/
-│   │   ├── auth.ts            # Authentication endpoints
-│   │   ├── tasks.ts           # Task management endpoints
-│   │   └── health.ts          # Health check endpoints
-│   └── init-db.ts             # Database initialization script
-├── package.json               # Dependencies and scripts
-├── tsconfig.json              # TypeScript configuration
-├── .env                       # Environment variables
-└── README.md                  # Project documentation
+phase3/
+├── ai-layer/                 # AI orchestration layer
+│   ├── agents/              # Sub-agent implementations
+│   │   ├── intent-agent.ts
+│   │   ├── planning-agent.ts
+│   │   └── execution-agent.ts
+│   ├── skills/              # Skill implementations
+│   │   ├── create-task.skill.ts
+│   │   ├── list-tasks.skill.ts
+│   │   ├── complete-task.skill.ts
+│   │   └── delete-task.skill.ts
+│   ├── orchestrator/        # Workflow coordination
+│   │   └── router.ts
+│   ├── middleware/          # Authentication and validation
+│   │   └── auth.middleware.ts
+│   ├── utils/               # Helper functions
+│   │   └── validators.ts
+│   └── server.ts            # Main entry point
+├── specs/                   # Feature specifications
+│   └── 001-validation-skill/
+│       ├── spec.md
+│       ├── plan.md          # This file
+│       ├── research.md
+│       ├── data-model.md
+│       ├── quickstart.md
+│       ├── contracts/
+│       └── tasks.md
+└── tests/                   # Test suite
+    ├── unit/
+    ├── integration/
+    └── contract/
 ```
 
-**Structure Decision**: Backend web API following Express/MVC pattern with separation of concerns between routes, middleware, services, and initialization scripts.
+**Structure Decision**: Web application with AI orchestration layer. The AI layer sits between the user interface and the existing Phase-2 backend, handling natural language processing and skill orchestration. All API calls go through the defined skill interfaces with JWT validation enforced.
 
 ## Complexity Tracking
 
@@ -75,84 +106,5 @@ phase-2/backend/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [None] | [No violations found] | [All requirements met] |
-
-## 1. Project Audit & Cleanup
-**WHAT:** Review existing codebase and remove legacy Python/FastAPI components
-**WHY:** The project was originally built with Python/FastAPI but needs to be converted to Node.js/TypeScript/Express stack
-**FILES INVOLVED:** Removal of all Python files (main.py, src/, tests/, requirements.txt, etc.)
-**DEPENDENCIES:** This must be completed before any new development begins
-
-The legacy Python backend has been completely removed and replaced with a modern Node.js/TypeScript/Express architecture. All Python-specific files and configurations have been cleaned up to ensure a fresh start with the required technology stack.
-
-## 2. Environment & Configuration
-**WHAT:** Set up proper environment variables and configuration management
-**WHY:** To securely manage sensitive data and provide flexibility across different environments
-**FILES INVOLVED:** `.env`, `package.json`, `tsconfig.json`, `src/config/`
-**DEPENDENCIES:** Needed before database and authentication setup
-
-Environment variables have been properly configured with BETER_AUTH_SECRET, DATABASE_URL (Neon), BETER_AUTH_URL, and PORT. The configuration system uses dotenv for secure environment management across development and production environments.
-
-## 3. Database Setup (Neon PostgreSQL)
-**WHAT:** Establish PostgreSQL connection with Neon and create required schemas
-**WHY:** To provide persistent storage for user accounts, tasks, and application data
-**FILES INVOLVED:** `src/services/database.ts`, `src/init-db.ts`, PostgreSQL tables
-**DEPENDENCIES:** Environment variables must be configured first
-
-PostgreSQL connection to Neon has been implemented with proper connection pooling. Database initialization script creates users and tasks tables with appropriate relationships, indexes, and triggers. The system handles serverless environments appropriately with proper connection management.
-
-## 4. Authentication (Custom JWT System)
-**WHAT:** Implement user authentication with registration, login, and token management
-**WHY:** To secure the application and provide user-specific functionality
-**FILES INVOLVED:** `src/middleware/auth.ts`, `src/routes/auth.ts`, JWT utilities
-**DEPENDENCIES:** Database setup must be complete for user storage
-
-A custom JWT-based authentication system has been implemented with secure password hashing (bcrypt), token generation/verification, and proper middleware for route protection. Endpoints include register, login, logout, and user info retrieval with proper session management.
-
-## 5. Core API Implementation
-**WHAT:** Develop the main API endpoints for application functionality
-**WHY:** To provide the business logic layer for frontend interaction
-**FILES INVOLVED:** `src/routes/tasks.ts`, `src/routes/auth.ts`, `src/server.ts`
-**DEPENDENCIES:** Authentication system must be in place for protected routes
-
-Core API endpoints have been implemented including user authentication flows and comprehensive task management (CRUD operations). All protected endpoints require authentication tokens, and proper validation is in place for all inputs.
-
-## 6. Middleware & Security
-**WHAT:** Implement security measures, request validation, and application middleware
-**WHY:** To protect against common vulnerabilities and ensure robust operation
-**FILES INVOLVED:** `src/middleware/auth.ts`, CORS configuration, input validation
-**DEPENDENCIES:** Core API endpoints should be defined first
-
-Security middleware includes CORS configuration for frontend integration, JWT token validation, input sanitization, and proper error handling. The system implements defense against common web vulnerabilities with appropriate headers and validation.
-
-## 7. Frontend Integration Readiness
-**WHAT:** Ensure API endpoints are compatible with frontend consumption
-**WHY:** To enable seamless communication between frontend and backend
-**FILES INVOLVED:** All route files, CORS configuration, response formatting
-**DEPENDENCIES:** All core functionality must be implemented first
-
-CORS has been configured to allow frontend access from common development ports and production domains. API responses follow consistent JSON format suitable for frontend consumption. Endpoints are organized in a RESTful manner that frontend applications can easily consume.
-
-## 8. Error Handling & Stability
-**WHAT:** Implement comprehensive error handling and stability measures
-**WHY:** To ensure the application handles edge cases gracefully and remains stable
-**FILES INVOLVED:** Global error handlers, route error handling, logging
-**DEPENDENCIES:** All functional components must be in place
-
-Global error handling middleware has been implemented to catch unhandled exceptions and return appropriate responses. All routes include proper error handling with meaningful messages. Database transactions and connection handling are designed for stability in production environments.
-
-## 9. Local Testing & Validation
-**WHAT:** Verify all functionality works correctly in local environment
-**WHY:** To ensure the implementation meets requirements before deployment
-**FILES INVOLVED:** All implemented files, test endpoints, database initialization
-**DEPENDENCIES:** All implementation must be complete
-
-Functionality has been validated through direct API testing including user registration, login, token verification, task CRUD operations, and health checks. The system responds correctly to both valid and invalid requests with appropriate status codes and error messages.
-
-## 10. Final Readiness Checklist
-**WHAT:** Conduct final verification of all requirements and functionality
-**WHY:** To confirm the implementation is complete and ready for deployment
-**FILES INVOLVED:** All project files, environment configuration, documentation
-**DEPENDENCIES:** All previous phases must be completed
-
-The backend implementation is complete with Node.js/TypeScript/Express stack, PostgreSQL integration with Neon, custom JWT authentication, comprehensive API endpoints, proper security measures, and frontend integration readiness. All requirements have been met with a production-ready codebase that follows best practices for security, maintainability, and scalability.
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

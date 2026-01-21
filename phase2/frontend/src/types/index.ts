@@ -1,3 +1,5 @@
+
+
 /**
  * Shared TypeScript types and interfaces.
  *
@@ -36,6 +38,7 @@ export interface Task {
   title: string;
   description?: string;
   completed: boolean;
+  url?: string; // Optional URL field for running links
   created_at: string;
   updated_at: string;
 }
@@ -50,6 +53,7 @@ export interface Task {
 export interface CreateTaskRequest {
   title: string;
   description?: string;
+  url?: string; // Optional URL field for running links
 }
 
 /**
@@ -58,6 +62,7 @@ export interface CreateTaskRequest {
 export interface UpdateTaskRequest {
   title?: string;
   description?: string;
+  url?: string; // Optional URL field for running links
 }
 
 /**

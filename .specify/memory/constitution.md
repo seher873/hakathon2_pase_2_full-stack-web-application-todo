@@ -1,55 +1,144 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Hakathon Phase 2 Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Spec-Driven Development (SDD)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+All work must be grounded in written specifications. Every feature begins with a spec document that clarifies requirements, acceptance criteria, and scope. Specifications drive planning, task generation, and implementation validation. Spec-first ensures shared understanding between architects, developers, and stakeholders before code is written.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Explicit Planning & Architecture
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Plans must document all ify
+significant architectural decisions with clear rationale and tradeoffs. Decisions that impact system design, APIs, data models, or deployment must be captured in Architecture Decision Records (ADRs). Planning precedes implementation; no major code changes without approved designs.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Test-Driven Development (TDD)
 
-### [PRINCIPLE_6_NAME]
+Tests are written before implementation. Red-Green-Refactor cycle is mandatory: write failing tests → get user approval → implement until tests pass → refactor safely. Testing covers units, integration points, and acceptance criteria. All test additions and modifications are tracked and reported.
 
+### IV. Small, Testable Changes
 
-[PRINCIPLE__DESCRIPTION]
+Each commit delivers one logical change, is independently testable, and references the spec/task it addresses. Large refactors are broken into smaller PRs. Changes do not introduce unrelated improvements or "clean up" code unless explicitly requested. Code references (file:line) are used to trace modifications back to source.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### V. Observable, Debuggable Systems
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+All significant operations emit structured logs. Error paths are explicit and traced. Command-line tools default to human-readable output with JSON options for automation. Debugging must be possible from logs and traces alone—no reliance on IDE breakpoints or internal state inspection.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Code review must verify:
+- Specification compliance: Changes match the approved spec/task.
+- Test coverage: Acceptance criteria are validated by tests.
+- Constitution adherence: Principles are followed (SDD, planning, TDD, testability, observability).
+
+Complexity must be justified in the PR or commit message. YAGNI (You Aren't Gonna Need It) principle applies—features not explicitly in the spec are not added. Breaking changes require explicit version bumps and migration documentation.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This Constitution supersedes all other practices and policies. Amendments are recorded with version bumps following semantic versioning:
+- MAJOR: Principle removal or backward-incompatible redefinition.
+- MINOR: New principle or materially expanded guidance.
+- PATCH: Clarifications, wording, non-semantic refinements.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+All PRs and code reviews must verify Constitution compliance. Deviations require explicit justification and ADR documentation if architecturally significant. Constitution reviews occur quarterly or after major changes.
+
+**Version**: 1.0.0 | **Ratified**: 2026-01-03 | **Last Amended**: 2026-01-03
+# Phase 2 Constitution
+## Core Task Management Application (COMPLETED)
+
+### Purpose
+The core application providing essential task management functionality with a beautiful, responsive UI.
+Transformed from Python/FastAPI to Node.js/TypeScript/Express with JWT authentication and PostgreSQL.
+
+### Structure
+```
+phase2/
+├── frontend/          # React/Next.js frontend
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── TaskCard.tsx
+│   │   │   ├── TaskList.tsx
+│   │   │   ├── Header.tsx
+│   │   │   └── Button.tsx
+│   │   ├── pages/
+│   │   ├── styles/
+│   │   └── utils/
+│   ├── public/
+│   ├── package.json
+│   └── next.config.js
+├── backend/           # Node.js/TypeScript/Express backend
+│   ├── src/
+│   │   ├── server.ts              # Main application entry point
+│   │   ├── services/
+│   │   │   └── database.ts        # PostgreSQL connection pool
+│   │   ├── middleware/
+│   │   │   └── auth.ts            # JWT authentication middleware
+│   │   ├── routes/
+│   │   │   ├── auth.ts            # Authentication endpoints
+│   │   │   ├── tasks.ts           # Task management endpoints
+│   │   │   └── health.ts          # Health check endpoints
+│   │   └── init-db.ts             # Database initialization script
+│   ├── package.json               # Dependencies and scripts
+│   ├── tsconfig.json              # TypeScript configuration
+│   └── .env                       # Environment variables
+└── README.md
+```
+
+### Rules and Guidelines
+1. **Direct API Logic**: No agent layer - direct API → business logic
+2. **CRUD Functionality**: Create, Read, Update, Delete tasks with proper validation
+3. **Authentication**: JWT-based with registration, login, logout, and user info endpoints
+4. **Database**: PostgreSQL with Neon integration and proper connection pooling
+5. **UI Requirements**:
+   - Beautiful, aligned, responsive, and compact
+   - Task cards with consistent styling
+   - Uniform buttons with proper spacing
+   - Consistent color scheme and typography
+6. **Code Quality**:
+   - Modular and maintainable code
+   - Proper error handling
+   - Type safety with TypeScript
+   - Comprehensive tests
+
+### Core Features (IMPLEMENTED)
+- User authentication and authorization (register, login, logout, me)
+- Task creation, listing, updating, and deletion
+- Task completion status management (todo, in-progress, done)
+- User-specific task isolation
+- Secure JWT token management
+- PostgreSQL database integration with Neon
+- CORS configured for frontend integration
+- Health checks and proper error handling
+
+### Success Criteria (ACHIEVED)
+- Stable task management functionality
+- Responsive and beautiful UI
+- Proper authentication and data security
+- Comprehensive API coverage
+- Production-ready Node.js/TypeScript/Express backend
+- Secure JWT authentication system
+- PostgreSQL integration with Neon database
+#
+# phase 3
+# AI Constitution
+
+## Overview
+This document outlines the foundational principles and architecture of the AI agent system implemented in Phase 3 of the project. The system follows a modular architecture with distinct layers for skills, agents, and orchestration.
+
+## Core Principles
+- **Modularity**: Clear separation of concerns between skills, agents, and orchestration
+- **Natural Language Processing**: Users can interact with the system using natural language
+- **Pattern Matching**: Intent recognition through configurable regex patterns
+- **Workflow Orchestration**: Following the specify → plan → task → implement methodology
+
+## System Architecture
+The AI agent system consists of three main components:
+
+1. **Skills Layer**: Atomic actions that perform specific tasks
+2. **Agents Layer**: Specialized AI components that handle different aspects of processing
+3. **Orchestration Layer**: Coordinates the workflow between skills and agents
+
+## Key Components
+- Intent Agent: Analyzes user input to determine intent
+- Planning Agent: Determines which skills to execute and in what order
+- Execution Agent: Executes the planned skills
+- Router: Orchestrates the entire workflow

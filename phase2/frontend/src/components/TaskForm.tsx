@@ -29,6 +29,7 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
 }) => {
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
+  const [url, setUrl] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = (): boolean => {
@@ -44,8 +45,21 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
       newErrors.description = 'Description must be 1000 characters or less';
     }
 
+    if (url && !isValidUrl(url)) {
+      newErrors.url = 'Please enter a valid URL';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const isValidUrl = (string: string): boolean => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,9 +76,11 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
       const taskData = isUpdate ? {
         title: title.trim() || undefined,
         description: description.trim() || undefined,
+        url: url.trim() || undefined,
       } : {
         title: title.trim(),
         description: description.trim() || undefined,
+        url: url.trim() || undefined,
       };
 
       await onSubmit(taskData);
@@ -73,6 +89,7 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
       if (!isUpdate) {
         setTitle('');
         setDescription('');
+        setUrl('');
         setErrors({});
       }
     } catch (err) {
@@ -154,6 +171,36 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   {errors.description}
+                </p>
+              )}
+            </div>
+
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="url">URL (Optional)</Label>
+              <Input
+                type="url"
+                id="url"
+                value={url}
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  if (errors.url) {
+                    setErrors((prev) => {
+                      const newErrors = { ...prev };
+                      delete newErrors.url;
+                      return newErrors;
+                    });
+                  }
+                }}
+                placeholder="https://example.com"
+                disabled={isLoading}
+                className={errors.url ? 'border-red-500' : ''}
+              />
+              {errors.url && (
+                <p className="text-xs md:text-sm text-red-600 flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.url}
                 </p>
               )}
             </div>

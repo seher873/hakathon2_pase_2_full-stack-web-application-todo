@@ -10,7 +10,6 @@ import { BACKEND_URL } from '@/utils/config';
 interface SignupRequest {
   email: string;
   password: string;
-  password_confirm: string;
 }
 
 /**
@@ -44,16 +43,14 @@ interface AuthResponse {
  *
  * @param email - User email
  * @param password - User password
- * @param passwordConfirm - Password confirmation
  * @returns Promise resolving to auth response
  */
 export async function signup(
   email: string,
-  password: string,
-  passwordConfirm: string
+  password: string
 ): Promise<AuthResponse> {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/auth/signup`, {
+    const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,17 +58,16 @@ export async function signup(
       body: JSON.stringify({
         email,
         password,
-        password_confirm: passwordConfirm,
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.detail || 'Signup failed');
+      throw new Error(errorData.error || errorData.message || 'Signup failed');
     }
 
     const responseData = await response.json();
-    // Extract the actual token and user data from the SuccessResponse wrapper
+    // Extract the actual token and user data from the response structure
     const { token, user } = responseData.data;
     return { token, user };
   } catch (error) {
@@ -105,11 +101,11 @@ export async function login(
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.detail || 'Login failed');
+      throw new Error(errorData.error || errorData.message || 'Login failed');
     }
 
     const responseData = await response.json();
-    // Extract the actual token and user data from the SuccessResponse wrapper
+    // Extract the actual token and user data from the response structure
     const { token, user } = responseData.data;
     return { token, user };
   } catch (error) {

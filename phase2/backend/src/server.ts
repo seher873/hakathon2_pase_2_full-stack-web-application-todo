@@ -1,13 +1,13 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { pool } from './services/database';
+import { pool, initializeDatabase } from './services/database';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
-const PORT = parseInt(process.env.PORT || '4000');
+const PORT = parseInt(process.env.API_PORT || '4000');
 
 // Enhanced CORS configuration for frontend integration
 const corsOptions = {
@@ -100,16 +100,6 @@ app.get('/', (req: Request, res: Response) => {
   });
 });
 
-// API routes
-// BetterAuth provides these endpoints automatically:
-// - POST /api/auth/sign-up (register)
-// - POST /api/auth/sign-in (login)
-// - POST /api/auth/sign-out (logout)
-// - GET /api/auth/me is custom (implemented in authRoutes)
-app.use('/api/auth', authRoutes);
-
-// Tasks API routes (protected by BetterAuth)
-app.use('/api/tasks', tasksRoutes);
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -120,12 +110,26 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Health check available at http://localhost:${PORT}/api/health`);
-  console.log(`BetterAuth endpoints available at http://localhost:${PORT}/api/auth/*`);
-  console.log(`Task endpoints available at http://localhost:${PORT}/api/tasks`);
-});
+// Start server after database initialization
+async function startServer() {
+  try {
+    // Wait for database to be initialized
+    console.log('Waiting for database initialization...');
+    await initializeDatabase();
+    console.log('Database initialized successfully!');
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+      console.log(`Health check available at http://localhost:${PORT}/api/health`);
+      console.log(`BetterAuth endpoints available at http://localhost:${PORT}/api/auth/*`);
+      console.log(`Task endpoints available at http://localhost:${PORT}/api/tasks`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 export default app;

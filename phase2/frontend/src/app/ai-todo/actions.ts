@@ -1,19 +1,15 @@
 'use server';
 
 import { revalidatePath } from 'next/server';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 /**
  * Process an AI command from the user
  * @param command The natural language command from the user
+ * @param token The JWT token passed from the client
  * @returns The result of processing the command
  */
-export async function processAICommand(command: string) {
+export async function processAICommand(command: string, token: string) {
   try {
-    // Get the JWT token from cookies
-    const token = cookies().get('token')?.value;
-
     if (!token) {
       return {
         success: false,
@@ -34,9 +30,12 @@ export async function processAICommand(command: string) {
     });
 
     if (response.status === 401) {
-      // Token expired or invalid, redirect to login
-      cookies().delete('token');
-      redirect('/login');
+      // Token expired or invalid
+      return {
+        success: false,
+        message: 'Session expired. Please log in again.',
+        redirect: '/login'
+      };
     }
 
     if (!response.ok) {
@@ -67,13 +66,11 @@ export async function processAICommand(command: string) {
  * Alternative function to create a task directly
  * @param title The title of the task
  * @param description The description of the task
+ * @param token The JWT token passed from the client
  * @returns The result of creating the task
  */
-export async function createTaskWithAI(title: string, description?: string) {
+export async function createTaskWithAI(title: string, description?: string, token: string) {
   try {
-    // Get the JWT token from cookies
-    const token = cookies().get('token')?.value;
-
     if (!token) {
       return {
         success: false,
@@ -81,33 +78,8 @@ export async function createTaskWithAI(title: string, description?: string) {
       };
     }
 
-    // Get user ID from the token (decode JWT to get user ID)
-    // For now, we'll use a separate API call to get user profile
-    const userIdResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
-    if (userIdResponse.status === 401) {
-      // Token expired or invalid, redirect to login
-      cookies().delete('token');
-      redirect('/login');
-    }
-
-    if (!userIdResponse.ok) {
-      throw new Error('Failed to get user profile');
-    }
-
-    const userData = await userIdResponse.json();
-    const userId = userData.data?.id;
-
-    if (!userId) {
-      throw new Error('User ID not found');
-    }
-
-    // Create the task
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${userId}/tasks`, {
+    // Create the task - use the correct API endpoint that matches our backend
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tasks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -120,9 +92,12 @@ export async function createTaskWithAI(title: string, description?: string) {
     });
 
     if (response.status === 401) {
-      // Token expired or invalid, redirect to login
-      cookies().delete('token');
-      redirect('/login');
+      // Token expired or invalid
+      return {
+        success: false,
+        message: 'Session expired. Please log in again.',
+        redirect: '/login'
+      };
     }
 
     if (!response.ok) {

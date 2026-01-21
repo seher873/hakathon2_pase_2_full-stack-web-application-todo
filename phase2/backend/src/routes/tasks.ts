@@ -15,36 +15,28 @@ export {};
 
 const router: Router = express.Router();
 
-// Middleware to protect routes - check if user is authenticated
-const authenticateUser = async (req: Request, res: Response, next: any) => {
-  // @ts-ignore - BetterAuth adds session info to req.auth when using the middleware
-  const session = req.auth?.session;
-
-  if (!session) {
-    return res.status(401).json({
-      error: 'Unauthorized: No active session'
-    });
-  }
-
-  // @ts-ignore - Access user data from BetterAuth
-  req.user = req.auth.user;
-  next();
-  return; // Explicit return to satisfy TS compiler
-};
+// All routes are protected by the server-level authenticateToken middleware
+// which is applied in server.ts to all /api/tasks routes
 
 // Get all tasks for authenticated user
-router.get('/', authenticateUser, async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
-    // @ts-ignore - User is attached by authenticateUser middleware
+    // @ts-ignore - User is attached by server-level authenticateToken middleware
     const userId = req.user.id;
 
     const result = await pool.query(
-      'SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC',
+      'SELECT *, CASE WHEN status = \'completed\' THEN true ELSE false END as completed FROM tasks WHERE user_id = $1 ORDER BY created_at DESC',
       [userId]
     );
 
+    // Format the response to match frontend expectations
+    const formattedTasks = result.rows.map(task => ({
+      ...task,
+      completed: task.status === 'completed'
+    }));
+
     res.status(200).json({
-      data: result.rows,
+      data: formattedTasks,
       message: 'Tasks retrieved successfully'
     });
     return; // Explicit return to satisfy TS compiler
@@ -59,11 +51,11 @@ router.get('/', authenticateUser, async (req: Request, res: Response) => {
 });
 
 // Create a new task for authenticated user
-router.post('/', authenticateUser, async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
-    // @ts-ignore - User is attached by authenticateUser middleware
+    // @ts-ignore - User is attached by server-level authenticateToken middleware
     const userId = req.user.id;
-    const { title, description, status } = req.body;
+    const { title, description, url, status, completed } = req.body;
 
     if (!title) {
       return res.status(400).json({
@@ -71,9 +63,15 @@ router.post('/', authenticateUser, async (req: Request, res: Response) => {
       });
     }
 
+    // Map completed field to status if provided
+    let taskStatus = status || 'todo';
+    if (typeof completed === 'boolean') {
+      taskStatus = completed ? 'completed' : 'todo';
+    }
+
     const result = await pool.query(
-      'INSERT INTO tasks (user_id, title, description, status) VALUES ($1, $2, $3, $4) RETURNING *',
-      [userId, title, description || '', status || 'todo']
+      'INSERT INTO tasks (user_id, title, description, url, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [userId, title, description || '', url || null, taskStatus]
     );
 
     res.status(201).json({
@@ -92,12 +90,12 @@ router.post('/', authenticateUser, async (req: Request, res: Response) => {
 });
 
 // Update a task for authenticated user
-router.put('/:id', authenticateUser, async (req: Request, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
-    // @ts-ignore - User is attached by authenticateUser middleware
+    // @ts-ignore - User is attached by server-level authenticateToken middleware
     const userId = req.user.id;
     const taskId = req.params.id;
-    const { title, description, status } = req.body;
+    const { title, description, url, status, completed } = req.body;
 
     // Check if the task belongs to the user
     const existingTask = await pool.query(
@@ -111,9 +109,15 @@ router.put('/:id', authenticateUser, async (req: Request, res: Response) => {
       });
     }
 
+    // Map completed field to status if provided
+    let taskStatus = status;
+    if (typeof completed === 'boolean') {
+      taskStatus = completed ? 'completed' : 'todo';
+    }
+
     const result = await pool.query(
-      'UPDATE tasks SET title = $1, description = $2, status = $3 WHERE id = $4 AND user_id = $5 RETURNING *',
-      [title, description, status, taskId, userId]
+      'UPDATE tasks SET title = $1, description = $2, url = $3, status = $4 WHERE id = $5 AND user_id = $6 RETURNING *',
+      [title, description, url, taskStatus, taskId, userId]
     );
 
     res.status(200).json({
@@ -131,10 +135,64 @@ router.put('/:id', authenticateUser, async (req: Request, res: Response) => {
   }
 });
 
-// Delete a task for authenticated user
-router.delete('/:id', authenticateUser, async (req: Request, res: Response) => {
+// Toggle task completion status
+router.patch('/:id/complete', async (req: Request, res: Response) => {
   try {
-    // @ts-ignore - User is attached by authenticateUser middleware
+    // @ts-ignore - User is attached by server-level authenticateToken middleware
+    const userId = req.user.id;
+    const taskId = req.params.id;
+    const { completed } = req.body;
+
+    if (typeof completed !== 'boolean') {
+      return res.status(400).json({
+        error: 'Completed field is required and must be a boolean'
+      });
+    }
+
+    // Check if the task belongs to the user
+    const existingTask = await pool.query(
+      'SELECT * FROM tasks WHERE id = $1 AND user_id = $2',
+      [taskId, userId]
+    );
+
+    if (existingTask.rows.length === 0) {
+      return res.status(404).json({
+        error: 'Task not found or does not belong to user'
+      });
+    }
+
+    const newStatus = completed ? 'completed' : 'todo';
+
+    const result = await pool.query(
+      'UPDATE tasks SET status = $1 WHERE id = $2 AND user_id = $3 RETURNING *',
+      [newStatus, taskId, userId]
+    );
+
+    // Format the response to match frontend expectations
+    const task = {
+      ...result.rows[0],
+      completed: result.rows[0].status === 'completed'
+    };
+
+    res.status(200).json({
+      data: task,
+      message: 'Task updated successfully'
+    });
+    return; // Explicit return to satisfy TS compiler
+  } catch (error: any) {
+    console.error('Toggle task completion error:', error);
+    res.status(500).json({
+      error: 'Failed to update task completion status',
+      message: error.message
+    });
+    return; // Explicit return to satisfy TS compiler
+  }
+});
+
+// Delete a task for authenticated user
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    // @ts-ignore - User is attached by server-level authenticateToken middleware
     const userId = req.user.id;
     const taskId = req.params.id;
 
@@ -164,14 +222,14 @@ router.delete('/:id', authenticateUser, async (req: Request, res: Response) => {
 });
 
 // Get a specific task for authenticated user
-router.get('/:id', authenticateUser, async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
-    // @ts-ignore - User is attached by authenticateUser middleware
+    // @ts-ignore - User is attached by server-level authenticateToken middleware
     const userId = req.user.id;
     const taskId = req.params.id;
 
     const result = await pool.query(
-      'SELECT * FROM tasks WHERE id = $1 AND user_id = $2',
+      'SELECT *, CASE WHEN status = \'completed\' THEN true ELSE false END as completed FROM tasks WHERE id = $1 AND user_id = $2',
       [taskId, userId]
     );
 
@@ -181,8 +239,14 @@ router.get('/:id', authenticateUser, async (req: Request, res: Response) => {
       });
     }
 
+    // Format the response to match frontend expectations
+    const task = {
+      ...result.rows[0],
+      completed: result.rows[0].status === 'completed'
+    };
+
     res.status(200).json({
-      data: result.rows[0],
+      data: task,
       message: 'Task retrieved successfully'
     });
     return; // Explicit return to satisfy TS compiler

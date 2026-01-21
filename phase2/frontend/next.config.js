@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // Enable static site generation
+  // Enable server-side rendering for dynamic functionality like auth and API calls
+  output: undefined, // Use default SSR mode instead of static export
   trailingSlash: true,
 
   // Handle the dynamic routes that use client-side hooks
