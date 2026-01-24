@@ -44,7 +44,9 @@ async function initializeDatabase() {
     console.log('Database initialization completed successfully!');
 
     // Close the database connection
-    await db.close();
+    if (db) {
+      await db.close();
+    }
   } catch (error) {
     console.error('Error initializing database:', error);
     process.exit(1);

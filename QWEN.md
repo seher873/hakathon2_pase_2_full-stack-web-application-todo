@@ -214,6 +214,8 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - In-memory storage for conversation contexts with option to extend to Redis/database later (002-intent-understanding-skill)
 - Python 3.9 + Pydantic for data validation, FastAPI for web framework, JSONSchema for validation, SQLAlchemy for any persistence needs (001-execution-skill)
 - In-memory storage for execution state (no persistent storage required for core functionality) (001-execution-skill)
+- TypeScript 5.x for frontend, Node.js 20.x for backend (001-ai-chatbot)
+- PostgreSQL database on Neon DB (existing infrastructure) (001-ai-chatbot)
 
 ## Recent Changes
 - 002-intent-understanding-skill: Added Python 3.9 + spaCy for NLP processing, FastAPI for web framework, Pydantic for data validation

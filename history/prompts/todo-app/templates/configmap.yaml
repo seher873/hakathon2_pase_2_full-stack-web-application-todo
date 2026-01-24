@@ -1,0 +1,24 @@
+{{- if and .Values.backend.configMap .Values.backend.configMap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "todo-app.backend.fullname" . }}-config
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app: backend
+data:
+  {{- toYaml .Values.backend.configMap.data | nindent 2 }}
+{{- end }}
+
+{{- if and .Values.frontend.configMap .Values.frontend.configMap.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "todo-app.frontend.fullname" . }}-config
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+    app: frontend
+data:
+  {{- toYaml .Values.frontend.configMap.data | nindent 2 }}
+{{- end }}

@@ -1,0 +1,76 @@
+# Development values for todo-app
+
+# Backend configuration
+backend:
+  image:
+    repository: todo-app-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  replicaCount: 1
+  
+  service:
+    type: ClusterIP
+    port: 8000
+  
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  # Environment variables for the backend (development)
+  env:
+    DATABASE_URL: "postgresql://user:password@postgres:5432/todo_db"
+    API_KEY: "dev-key"
+
+# Frontend configuration
+frontend:
+  image:
+    repository: todo-app-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  replicaCount: 1
+  
+  service:
+    type: ClusterIP
+    port: 3000
+  
+  resources:
+    limits:
+      cpu: 150m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  # Environment variables for the frontend (development)
+  env:
+    NEXT_PUBLIC_API_URL: "http://localhost:8000"
+
+# Ingress configuration for development
+ingress:
+  enabled: true
+  className: ""
+  annotations: 
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  hosts:
+    - host: localhost
+      paths:
+        - path: /
+          pathType: Prefix
+          backendService: frontend
+        - path: /api(/|$)(.*)
+          pathType: Prefix
+          backendService: backend
+  tls: []
+
+# Database configuration (development)
+database:
+  host: "postgres"
+  port: 5432
+  name: "todo_dev_db"
+  secretName: "db-secret"
