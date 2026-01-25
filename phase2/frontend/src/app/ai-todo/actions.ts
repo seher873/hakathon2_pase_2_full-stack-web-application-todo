@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
 /**
  * Process an AI command from the user
@@ -69,7 +69,7 @@ export async function processAICommand(command: string, token: string) {
  * @param token The JWT token passed from the client
  * @returns The result of creating the task
  */
-export async function createTaskWithAI(title: string, description?: string, token: string) {
+export async function createTaskWithAI(title: string, description: string | undefined, token: string) {
   try {
     if (!token) {
       return {
