@@ -16,7 +16,7 @@ else
 fi
 
 # Build images
-./scripts/build-images.sh
+./build-images.sh
 
 # Load images into Minikube
 echo "Loading images into Minikube..."
@@ -26,12 +26,12 @@ minikube image load todo-frontend:latest
 
 # Apply Kubernetes configurations
 echo "Applying Kubernetes configurations..."
-kubectl apply -f k8s/backend-deployment.yaml
-kubectl apply -f k8s/backend-service.yaml
-kubectl apply -f k8s/chatbot-deployment.yaml
-kubectl apply -f k8s/chatbot-service.yaml
-kubectl apply -f k8s/frontend-deployment.yaml
-kubectl apply -f k8s/frontend-service.yaml
+kubectl apply -f ../k8s/backend-deployment.yaml
+kubectl apply -f ../k8s/backend-service.yaml
+kubectl apply -f ../k8s/chatbot-deployment.yaml
+kubectl apply -f ../k8s/chatbot-service.yaml
+kubectl apply -f ../k8s/frontend-deployment.yaml
+kubectl apply -f ../k8s/frontend-service.yaml
 
 # Wait for deployments to be ready
 echo "Waiting for deployments to be ready..."

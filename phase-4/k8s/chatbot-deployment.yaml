@@ -35,10 +35,12 @@ spec:
             secretKeyRef:
               name: app-secrets
               key: jwt-secret
+        - name: PORT
+          value: "8000"
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
             memory: "256Mi"
             cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

@@ -20,12 +20,14 @@ spec:
         ports:
         - containerPort: 3000
         env:
-        - name: REACT_APP_BACKEND_BASE_URL
+        - name: NEXT_PUBLIC_BACKEND_BASE_URL
           value: "http://backend-service"
+        - name: NEXT_PUBLIC_CHATBOT_BASE_URL
+          value: "http://chatbot-service"
         resources:
           requests:
-            memory: "64Mi"
-            cpu: "50m"
-          limits:
             memory: "128Mi"
             cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"

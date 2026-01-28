@@ -1,19 +1,19 @@
-# Frontend Dockerfile
+# Phase-2 Frontend Dockerfile
 FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY phase3/frontend/package*.json ./
-COPY phase3/frontend/next.config.js ./
-COPY phase3/frontend/tsconfig.json ./
+COPY phase2/frontend/package*.json ./
+COPY phase2/frontend/next.config.js ./
+COPY phase2/frontend/tsconfig.json ./
 
 # Install dependencies
 RUN npm ci
 
 # Copy source code
-COPY phase3/frontend/ .
+COPY phase2/frontend/ .
 
 # Build the Next.js app
 RUN npm run build
