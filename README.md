@@ -107,3 +107,33 @@ For details, see `CONSTITUTION.md` in the root directory.
 - `MERGED_ARCHITECTURE.md` - Unified architecture overview
 - `CONSTITUTION.md` - Project governance document
 - Individual phase documentation in each phase directory
+- Phase specifications in `./specs/` directory:
+  - `specs/001-ai-chatbot/spec.md` - Phase 1: AI Chatbot specifications
+  - `specs/002-core-app/spec.md` - Phase 2: Core application specifications
+  - `specs/003-validation/spec.md` - Phase 3: Validation specifications
+  - `specs/004-k8s-helm-deployment/spec.md` - Phase 4: Kubernetes deployment specifications
+
+## Phase Specifications
+
+Each phase of the project has detailed specifications:
+
+### Phase 1: AI Chatbot
+- **Location**: `./specs/001-ai-chatbot/spec.md`
+- **Focus**: AI-powered task management interface
+- **Technology**: Python/FastAPI with Cohere AI integration
+
+### Phase 2: Core Application
+- **Location**: `./specs/002-core-app/spec.md`
+- **Focus**: Core task management application with authentication
+- **Technology**: Node.js/TypeScript/Express backend with Next.js frontend
+
+### Phase 3: Validation
+- **Location**: `./specs/003-validation/spec.md`
+- **Focus**: Validation and verification of AI behaviors
+- **Technology**: Validation frameworks and testing protocols
+
+### Phase 4: Kubernetes Deployment
+- **Location**: `./specs/004-k8s-helm-deployment/spec.md`
+- **Focus**: Containerized deployment with Helm charts
+- **Components**: Dockerfiles, Helm charts, deployment configurations
+- **Requirements**: Containerized services, environment-specific configurations
