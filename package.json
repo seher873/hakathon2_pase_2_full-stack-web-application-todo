@@ -1,0 +1,43 @@
+{
+  "name": "multi-phase-todo-app",
+  "version": "1.0.0",
+  "description": "A complete multi-phase todo application with AI integration",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seher873/hakathon2_pase_2_full-stack-web-application-todo.git"
+  },
+  "keywords": [
+    "todo",
+    "application",
+    "ai",
+    "chatbot",
+    "fullstack",
+    "typescript",
+    "python",
+    "nextjs",
+    "fastapi",
+    "docker",
+    "kubernetes"
+  ],
+  "author": "Hackathon Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/seher873/hakathon2_pase_2_full-stack-web-application-todo/issues"
+  },
+  "homepage": "https://github.com/seher873/hakathon2_pase_2_full-stack-web-application-todo#readme",
+  "scripts": {
+    "phase2:backend:install": "cd phase2/backend && npm install",
+    "phase2:backend:start": "cd phase2/backend && npm run dev",
+    "phase2:frontend:install": "cd phase2/frontend && npm install",
+    "phase2:frontend:start": "cd phase2/frontend && npm run dev",
+    "phase3:backend:install": "cd phase3/backend && pip install -r requirements.txt",
+    "phase3:backend:start": "cd phase3/backend && python main.py",
+    "phase4:build": "cd phase-4 && ./scripts/build-images.sh",
+    "phase4:deploy": "cd phase-4 && ./scripts/deploy-minikube.sh",
+    "dev": "concurrently \"npm run phase2:backend:start\" \"npm run phase2:frontend:start\"",
+    "setup": "npm run phase2:backend:install && npm run phase2:frontend:install && npm run phase3:backend:install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

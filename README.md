@@ -1,96 +1,94 @@
-# Hakathon Project - Multi-Phase Todo Application
+# Multi-Phase Todo Application with AI Integration
 
-This project follows a spec-driven, multi-phase approach to building a task management application with AI capabilities.
+This repository contains a complete, multi-phase todo application with AI capabilities. The project follows a spec-driven, multi-phase approach to building a task management application with advanced AI features.
 
-## Project Structure
+## Unified Architecture
 
-The project is organized into multiple phases as per the AI Constitution:
-
-### Phase 1: Foundation
-- Purpose: Setting up the project foundation, including repository structure, environment configuration, and core application logic. The goal was to establish a clean, scalable base for future phases.
-- Status: Completed
-
-### Phase 2: Application Development
-- Purpose: Deliver a complete working application with frontend and backend integration. This included user authentication, database operations, and deployment of both the frontend and backend as public services.
-- Status: Active Development
-
-#### Phase 2 Architecture:
 ```
-phase2/
-├── frontend/              # React/Next.js frontend
-│   ├── src/
-│   │   ├── app/          # Next.js app router pages
-│   │   ├── components/   # Reusable UI components
-│   │   ├── hooks/        # Custom React hooks
-│   │   ├── lib/          # Utilities and libraries
-│   │   ├── services/     # API service clients
-│   │   ├── types/        # TypeScript type definitions
-│   │   └── utils/        # Utility functions
-│   ├── public/
-│   ├── package.json
-│   └── next.config.js
-├── backend/               # FastAPI backend
-│   ├── src/
-│   │   ├── api/          # API route handlers (auth.py, tasks.py)
-│   │   ├── models/       # Data models (task.py, user.py)
-│   │   ├── schemas/      # Pydantic schemas for validation
-│   │   └── services/     # Business logic (task_service.py)
-│   ├── main.py           # Application entry point
-│   └── requirements.txt
-├── specs/                # Feature specifications
-├── history/              # Prompt history records
-├── docs/                 # Documentation
-├── tests/                # Test files
-├── prompts/              # AI prompt templates
-├── config/               # Configuration files
-└── CONSTITUTION-PHASE2.md # Phase-specific rules
+├── phase2/                 # Phase 2: Core application (Node.js/TS/Express + Next.js)
+│   ├── backend/            # Node.js/TypeScript/Express backend
+│   └── frontend/           # Next.js frontend
+├── phase3/                 # Phase 3: AI Chatbot (Python/FastAPI)
+│   ├── backend/            # Python FastAPI application with Cohere AI
+│   └── frontend/           # React chat interface
+├── phase-4/                # Phase 4: Deployment (Docker/Kubernetes)
+│   ├── docker/             # Dockerfiles for all services
+│   ├── k8s/                # Kubernetes configurations
+│   ├── env/                # Environment configuration
+│   └── scripts/            # Deployment scripts
+├── README.md               # This file
+├── CONSTITUTION.md         # Project governance document
+├── PROJECT_SUMMARY.md      # Comprehensive project documentation
+└── MERGED_ARCHITECTURE.md  # Unified architecture documentation
 ```
 
-#### Frontend Features:
-- Next.js 14 with App Router
-- TypeScript
-- Tailwind CSS for styling
-- Responsive design
-- Multiple pages for different phases and functionality
-- Task management UI components
+## Phase Details
 
-#### Backend Features:
-- FastAPI framework
-- SQLAlchemy ORM
-- JWT-based authentication
-- Task CRUD operations
-- User management
-- Pydantic schema validation
+### Phase 2: Core Application (Completed)
+- **Technology**: Node.js/TypeScript/Express backend with Next.js frontend
+- **Features**:
+  - JWT-based authentication (register, login, logout, me)
+  - Task CRUD operations (create, read, update, delete)
+  - PostgreSQL database with Neon integration
+  - Health checks and proper error handling
+  - CORS configured for frontend integration
+- **Location**: `./phase2/`
 
-### Phase 3: AI System (Skills & Agents)
-- Purpose: Introduced the AI orchestration layer. Using SpecKit, AI skills and sub-agents were formally specified, planned, and implemented to safely interpret user intent, plan actions, execute tasks, and validate results.
-- Status: Planned
+### Phase 3: AI Chatbot (Completed)
+- **Technology**: Python/FastAPI with Cohere AI integration
+- **Features**:
+  - Natural language processing for task management
+  - Intent classification (create/list/update/delete tasks)
+  - Conversation history tracking
+  - Integration with Phase-2 backend APIs
+- **Location**: `./phase3/`
 
-### Phase 4: Build/Implement
-- Purpose: Implement the planned system
-- Status: Planned
+### Phase 4: Deployment (Completed)
+- **Technology**: Docker containers with Kubernetes orchestration
+- **Features**:
+  - Containerized services for all components
+  - Kubernetes deployments and services
+  - Environment configuration management
+  - Deployment scripts for local and production
+- **Location**: `./phase-4/`
 
-### Phase 5: Validate & Polish
-- Purpose: Prove the system is correct, safe, and clear
-- Status: Planned
+## How to Run
 
-## Running the Application
-
-### Backend Setup:
+### Phase 2 (Core Application)
 ```bash
+# Backend
 cd phase2/backend
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
-```
+npm install
+npm run dev
 
-### Frontend Setup:
-```bash
+# Frontend
 cd phase2/frontend
 npm install
 npm run dev
 ```
+
+### Phase 3 (AI Chatbot)
+```bash
+# Backend
+cd phase3/backend
+pip install -r requirements.txt
+python main.py
+```
+
+### Phase 4 (Deployment)
+```bash
+# Build and deploy
+cd phase-4
+./scripts/build-images.sh
+./scripts/deploy-minikube.sh
+```
+
+## API Integration
+
+- Phase 2 provides the core authentication and task management APIs
+- Phase 3 provides AI processing and natural language understanding
+- Both phases work together to provide a complete AI-powered task management system
+- Phase 4 provides containerized deployment for all services
 
 ## Project Constitution
 
@@ -103,6 +101,9 @@ This project follows the ROOT AI CONSTITUTION which defines:
 
 For details, see `CONSTITUTION.md` in the root directory.
 
-## Current Status
+## Documentation
 
-The project is currently in Phase 2 (Specify), with active development on both frontend and backend components. The core task management functionality is being specified and implemented with a focus on creating a beautiful, responsive UI and robust backend APIs.
+- `PROJECT_SUMMARY.md` - Comprehensive project documentation
+- `MERGED_ARCHITECTURE.md` - Unified architecture overview
+- `CONSTITUTION.md` - Project governance document
+- Individual phase documentation in each phase directory

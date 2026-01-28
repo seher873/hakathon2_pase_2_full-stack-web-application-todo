@@ -278,3 +278,15 @@ VolumeIcon.icns
 .Suspended Items
 TemporaryItems
 .metadata
+
+# Docker
+.dockerignore
+
+# Kubernetes
+*.kubeconfig
+
+# Minikube
+.minikube/
+
+# Helm
+.helm/
