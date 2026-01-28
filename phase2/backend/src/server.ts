@@ -144,11 +144,13 @@ async function startServer() {
     await initializeDatabase();
     console.log('Database initialized successfully!');
 
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log(`Health check available at http://localhost:${PORT}/api/health`);
-      console.log(`BetterAuth endpoints available at http://localhost:${PORT}/api/auth/*`);
-      console.log(`Task endpoints available at http://localhost:${PORT}/api/tasks`);
+    const HOST = process.env.API_HOST || '0.0.0.0';
+
+    app.listen(PORT, HOST, () => {
+      console.log(`Server is running on ${HOST}:${PORT}`);
+      console.log(`Health check available at http://${HOST}:${PORT}/api/health`);
+      console.log(`BetterAuth endpoints available at http://${HOST}:${PORT}/api/auth/*`);
+      console.log(`Task endpoints available at http://${HOST}:${PORT}/api/tasks`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
