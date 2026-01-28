@@ -309,11 +309,18 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     if (!user) return;
 
     try {
+      // Log the task ID for debugging
+      console.log('Attempting to delete task with ID:', taskId);
+
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
-      await apiDelete(`/tasks/${taskId}`);
+      // Ensure the task ID is properly formatted
+      const cleanTaskId = String(taskId).split(':')[0]; // Take only the part before any colon
+      console.log('Cleaned task ID:', cleanTaskId);
 
-      dispatch({ type: TASK_ACTIONS.DELETE_TASK, payload: taskId });
+      await apiDelete(`/tasks/${cleanTaskId}`);
+
+      dispatch({ type: TASK_ACTIONS.DELETE_TASK, payload: cleanTaskId });
       dispatch({ type: TASK_ACTIONS.CLEAR_ERROR });
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to delete task';

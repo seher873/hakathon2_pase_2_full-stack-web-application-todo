@@ -266,7 +266,9 @@ export async function apiPut<T>(
  * @throws ApiErrorException if request fails
  */
 export async function apiDelete(path: string): Promise<void> {
-  const url = buildUrl(path);
+  // Ensure the path doesn't contain any unexpected characters
+  const sanitizedPath = path.replace(/[^a-zA-Z0-9\-_/.~:]/g, '');
+  const url = buildUrl(sanitizedPath);
 
   try {
     const response = await fetch(url, prepareFetchOptions("DELETE"));
