@@ -1,222 +1,118 @@
-# Phase 4: Local Kubernetes Deployment
+# Phase-4: Containerized Deployment with Kubernetes
 
-This document provides instructions for deploying the Todo application to a local Kubernetes cluster using Docker, Minikube, and Helm.
+This directory contains all the deployment artifacts for containerizing and orchestrating the full application using Docker and Kubernetes.
+
+## Directory Structure
+
+```
+phase-4/
+├── docker/
+│   ├── backend.Dockerfile        # Phase-2 backend Docker
+│   ├── chatbot.Dockerfile        # Phase-3 AI chatbot Docker
+│   └── frontend.Dockerfile       # Phase-3 frontend Docker
+├── k8s/
+│   ├── backend-deployment.yaml
+│   ├── backend-service.yaml
+│   ├── chatbot-deployment.yaml
+│   ├── chatbot-service.yaml
+│   ├── frontend-deployment.yaml
+│   └── frontend-service.yaml
+├── env/
+│   ├── backend.env.example
+│   ├── chatbot.env.example
+│   └── frontend.env.example
+├── scripts/
+│   ├── build-images.sh
+│   ├── push-images.sh
+│   └── deploy-minikube.sh
+└── README.md
+```
 
 ## Prerequisites
 
 - Docker
-- Minikube
+- Kubernetes (or Minikube for local development)
 - kubectl
-- Helm
-- Git
 
-## Setup Instructions
+## Quick Start
 
-### 1. Clone the repository (if needed)
+### 1. Build Docker Images
 
 ```bash
-git clone <repository-url>
-cd hakathon_2
+cd phase-4
+./scripts/build-images.sh
 ```
 
-### 2. Start Minikube
+### 2. Deploy to Minikube
 
 ```bash
-minikube start --driver=docker
+./scripts/deploy-minikube.sh
 ```
 
-### 3. Build Docker Images
+### 3. Access the Application
 
-Build the backend image:
-```bash
-docker build -f phase-4/Dockerfile.backend -t todo-app-backend:latest .
-```
+Once deployed, you can access the services using the exposed ports:
 
-Build the frontend image:
-```bash
-docker build -f phase-4/Dockerfile.frontend -t todo-app-frontend:latest .
-```
+- Frontend: `minikube service frontend-service`
+- Backend: `minikube service backend-service`
+- Chatbot: `minikube service chatbot-service`
 
-### 4. Load Images into Minikube
+## Configuration
 
-```bash
-minikube image load todo-app-backend:latest
-minikube image load todo-app-frontend:latest
-```
+### Environment Variables
 
-### 5. Install/Upgrade the Helm Chart
-
-For development environment:
-```bash
-helm upgrade --install todo-app-dev phase-4/helm/todo-app \
-  --values phase-4/helm/todo-app/values-dev.yaml \
-  --namespace todo-app \
-  --create-namespace
-```
-
-For production-like environment (testing purposes):
-```bash
-helm upgrade --install todo-app-prod phase-4/helm/todo-app \
-  --values phase-4/helm/todo-app/values-prod.yaml \
-  --namespace todo-app-prod \
-  --create-namespace
-```
-
-### 6. Access the Application
-
-To access the application locally, you can use port forwarding:
+Before deploying, copy the example environment files and fill in your values:
 
 ```bash
-# Forward frontend service
-kubectl port-forward -n todo-app svc/todo-app-dev-frontend 3000:3000
+# For backend
+cp env/backend.env.example env/backend.env
 
-# Forward backend service
-kubectl port-forward -n todo-app svc/todo-app-dev-backend 8000:8000
+# For chatbot
+cp env/chatbot.env.example env/chatbot.env
+
+# For frontend
+cp env/frontend.env.example env/frontend.env
 ```
 
-Alternatively, if you have an ingress controller installed:
-```bash
-minikube addons enable ingress
-```
+### Kubernetes Secrets
 
-Then access the application at:
-- Frontend: http://localhost
-- Backend: http://localhost/api (for API requests)
-
-### 7. Check Deployment Status
+Create Kubernetes secrets from your environment files:
 
 ```bash
-# Check pods
-kubectl get pods -n todo-app
-
-# Check services
-kubectl get svc -n todo-app
-
-# Check ingress
-kubectl get ingress -n todo-app
-
-# Check logs
-kubectl logs -l app=backend -n todo-app
-kubectl logs -l app=frontend -n todo-app
+kubectl create secret generic app-secrets \
+  --from-env-file=env/backend.env \
+  --from-env-file=env/chatbot.env
 ```
 
-### 8. Uninstall the Application
+## Services
 
-```bash
-helm uninstall todo-app-dev -n todo-app
-kubectl delete namespace todo-app
-```
+### Phase-2 Backend
+- Handles user authentication and task management
+- Runs on port 4000
+- Connects to PostgreSQL database
 
-## Helm Chart Configuration
+### Phase-3 Chatbot
+- AI-powered task management interface
+- Runs on port 8000
+- Integrates with Cohere API for NLP
 
-The Helm chart supports the following customizable parameters:
+### Frontend
+- React-based user interface
+- Runs on port 3000
+- Communicates with both backend and chatbot services
 
-### Backend Configuration
-- `backend.image.repository`: Docker image repository for the backend
-- `backend.image.tag`: Docker image tag for the backend
-- `backend.replicaCount`: Number of backend replicas
-- `backend.service.port`: Port for the backend service
-- `backend.resources`: Resource limits and requests for the backend
-- `backend.env`: Environment variables for the backend
+## Scripts
 
-### Frontend Configuration
-- `frontend.image.repository`: Docker image repository for the frontend
-- `frontend.image.tag`: Docker image tag for the frontend
-- `frontend.replicaCount`: Number of frontend replicas
-- `frontend.service.port`: Port for the frontend service
-- `frontend.resources`: Resource limits and requests for the frontend
-- `frontend.env`: Environment variables for the frontend
+- `build-images.sh`: Builds Docker images for all services
+- `push-images.sh`: Tags and pushes images to a registry
+- `deploy-minikube.sh`: Deploys the application to Minikube
 
-### Ingress Configuration
-- `ingress.enabled`: Enable/disable ingress
-- `ingress.hosts`: Hostnames for the ingress
-- `ingress.tls`: TLS configuration for the ingress
+## Production Deployment
 
-## Environment-Specific Values
+For production deployment, update the Kubernetes configurations to:
 
-The chart includes environment-specific values files:
-
-- `values-dev.yaml`: Optimized for local development with minimal resources
-- `values-prod.yaml`: Production-ready configuration with appropriate resource allocations and autoscaling
-
-## Security Considerations
-
-- Both frontend and backend containers run as non-root users
-- Resource limits are set to prevent resource exhaustion
-- Secrets are stored separately and referenced via Kubernetes secrets
-- Health checks are implemented for both services
-
-## Deployment Automation
-
-The project includes automated deployment scripts:
-
-### Using the Deploy Script
-
-The `deploy.sh` script automates the entire deployment process:
-
-```bash
-# Deploy the application (default action)
-./phase-4/deploy.sh
-
-# Deploy explicitly
-./phase-4/deploy.sh deploy
-
-# Rollback to the previous release
-./phase-4/deploy.sh rollback
-
-# Validate the current deployment
-./phase-4/deploy.sh validate
-
-# Show deployment status
-./phase-4/deploy.sh status
-```
-
-### Using the Cleanup Script
-
-The `cleanup.sh` script removes the application from the cluster:
-
-```bash
-# Remove the application deployment
-./phase-4/cleanup.sh
-```
-
-## Monitoring and Logging
-
-The application includes configurations for monitoring and logging:
-
-- Logging levels can be adjusted via the `logging` section in values files
-- Prometheus service monitors can be enabled via the `monitoring` section in values files
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Images not found**: Make sure to load the images into Minikube using `minikube image load`
-2. **Ingress not working**: Ensure the ingress addon is enabled in Minikube: `minikube addons enable ingress`
-3. **Application not responding**: Check the logs of the pods: `kubectl logs -l app=<backend|frontend> -n todo-app`
-4. **Resource constraints**: Adjust resource limits in the values files according to your local machine's capabilities
-
-### Useful Commands
-
-```bash
-# Check Helm releases
-helm list -A
-
-# Get detailed status of a release
-helm status todo-app-dev -n todo-app
-
-# Rollback to a previous release
-helm rollback todo-app-dev -n todo-app
-
-# Get all resources in the namespace
-kubectl get all -n todo-app
-```
-
-### Troubleshooting Procedures
-
-1. **Check deployment status**: Use `./phase-4/deploy.sh status` to get a comprehensive view of the deployment
-2. **Validate deployment**: Run `./phase-4/deploy.sh validate` to run validation checks
-3. **Rollback if needed**: Use `./phase-4/deploy.sh rollback` to revert to the previous version
-4. **Review logs**: Check application logs with `kubectl logs -l app=backend -n todo-app` and `kubectl logs -l app=frontend -n todo-app`
-5. **Check resources**: Verify resource allocation with `kubectl describe pods -n todo-app`
-6. **Helm validation**: Run `helm lint phase-4/helm/todo-app` to validate the chart
+1. Use production-grade resource limits
+2. Enable horizontal pod autoscaling
+3. Configure persistent volumes for databases
+4. Set up SSL certificates
+5. Implement proper logging and monitoring
