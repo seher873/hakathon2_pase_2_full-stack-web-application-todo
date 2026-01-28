@@ -1,0 +1,67 @@
+# Development environment values
+backend:
+  replicaCount: 1
+  image:
+    repository: todo-app-backend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  env:
+    - name: DATABASE_URL
+      value: "sqlite:///./todo_app.db"
+    - name: JWT_SECRET_KEY
+      value: "dev-secret-key-for-local-testing"
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: todo-app-frontend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 3000
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 25m
+      memory: 32Mi
+  env:
+    - name: REACT_APP_BACKEND_BASE_URL
+      value: "http://todo-app-dev-backend:8000"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: localhost
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Disable health checks for development to speed up deployment
+healthChecks:
+  enabled: true
+  backendPath: /health
+  frontendPath: /
+
+# Development-specific settings
+logging:
+  level: debug
+
+monitoring:
+  enabled: false

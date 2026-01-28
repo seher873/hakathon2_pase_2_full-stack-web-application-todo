@@ -36,6 +36,26 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+/**
+ * Robust response interceptor
+ * Ensures all successful JSON responses have status: 'success' and timestamp
+ */
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const originalJson = res.json;
+  res.json = function (body) {
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      if (body && typeof body === 'object' && !body.status) {
+        body.status = 'success';
+      }
+      if (body && typeof body === 'object' && !body.timestamp) {
+        body.timestamp = new Date().toISOString();
+      }
+    }
+    return originalJson.call(this, body);
+  };
+  next();
+});
+
 // Additional middleware for handling cookies and headers
 app.use((req, res, next) => {
   // Set security headers
@@ -58,6 +78,7 @@ app.use((req, res, next) => {
 // Import routes
 import authRoutes from './routes/auth';
 import tasksRoutes from './routes/tasks';
+import aiRoutes from './routes/ai';
 import healthRoutes from './routes/health';
 import { authenticateToken } from './middleware/auth';
 
@@ -91,6 +112,9 @@ app.use('/api/auth', authRoutes);
 // Protected routes - require authentication
 app.use('/api/tasks', authenticateToken, tasksRoutes);
 
+// AI routes - also require authentication
+app.use('/api/ai', authenticateToken, aiRoutes);
+
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {
   res.status(200).json({
@@ -99,6 +123,8 @@ app.get('/', (req: Request, res: Response) => {
     version: '1.0.0',
   });
 });
+
+
 
 
 // Error handling middleware

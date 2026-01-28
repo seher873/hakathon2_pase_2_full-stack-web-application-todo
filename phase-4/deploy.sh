@@ -35,10 +35,18 @@ case $ACTION in
             exit 1
         }
 
-        docker build -f phase-4/Dockerfile.frontend -t todo-app-frontend:latest . || {
-            echo "Failed to build frontend image"
-            exit 1
-        }
+        # Use corrected Dockerfile for React frontend
+        if [ -f "phase-4/Dockerfile.frontend.corrected" ]; then
+            docker build -f phase-4/Dockerfile.frontend.corrected -t todo-app-frontend:latest . || {
+                echo "Failed to build frontend image"
+                exit 1
+            }
+        else
+            docker build -f phase-4/Dockerfile.frontend -t todo-app-frontend:latest . || {
+                echo "Failed to build frontend image"
+                exit 1
+            }
+        fi
 
         # Load images into Minikube
         echo "Loading images into Minikube..."

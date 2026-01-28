@@ -11,7 +11,7 @@ declare global {
 }
 
 // Need to export something to make this file a module
-export {};
+export { };
 
 const router: Router = express.Router();
 
@@ -57,6 +57,9 @@ router.post('/', async (req: Request, res: Response) => {
     const userId = req.user.id;
     const { title, description, url, status, completed } = req.body;
 
+    console.log('Creating task for user:', userId);
+    console.log('Task data:', { title, description, url, status, completed });
+
     if (!title) {
       return res.status(400).json({
         error: 'Title is required'
@@ -69,10 +72,13 @@ router.post('/', async (req: Request, res: Response) => {
       taskStatus = completed ? 'completed' : 'todo';
     }
 
+    console.log('Executing INSERT query...');
     const result = await pool.query(
       'INSERT INTO tasks (user_id, title, description, url, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [userId, title, description || '', url || null, taskStatus]
     );
+
+    console.log('Task created successfully:', result.rows[0]);
 
     res.status(201).json({
       data: result.rows[0],
@@ -81,6 +87,7 @@ router.post('/', async (req: Request, res: Response) => {
     return; // Explicit return to satisfy TS compiler
   } catch (error: any) {
     console.error('Create task error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       error: 'Failed to create task',
       message: error.message

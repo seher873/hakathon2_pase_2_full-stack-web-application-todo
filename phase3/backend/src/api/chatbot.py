@@ -16,7 +16,7 @@ security = HTTPBearer()
 chatbot_service = ChatbotService()
 
 # Secret key for JWT decoding (should match Phase-2)
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-default-secret-key")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "fallback_secret_key_for_dev")
 ALGORITHM = "HS256"
 
 class ChatRequestPayload(BaseModel):
@@ -40,12 +40,19 @@ def verify_token(token: str):
     """Verify JWT token and return user info"""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("user_id")
+        # Check for user_id (snake_case) OR userId (camelCase, from Node backend)
+        user_id = payload.get("user_id") or payload.get("userId")
+        
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials"
+                detail="Could not validate credentials: user_id missing"
             )
+            
+        # Ensure we return a consistent payload with user_id
+        if "user_id" not in payload:
+            payload["user_id"] = user_id
+            
         return payload
     except jwt.PyJWTError:
         raise HTTPException(

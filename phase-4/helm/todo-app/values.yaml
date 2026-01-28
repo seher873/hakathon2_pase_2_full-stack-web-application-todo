@@ -1,0 +1,77 @@
+# Default values for todo-app
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+backend:
+  replicaCount: 1
+  image:
+    repository: todo-app-backend
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    - name: DATABASE_URL
+      value: "sqlite:///./todo_app.db"
+    - name: JWT_SECRET_KEY
+      value: "secret-key-change-in-production"
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: todo-app-frontend
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 3000
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  env:
+    - name: REACT_APP_BACKEND_BASE_URL
+      value: "http://todo-app-dev-backend:8000"
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+# Define health checks for the deployments
+healthChecks:
+  enabled: true
+  backendPath: /health
+  frontendPath: /
+
+# Logging configuration
+logging:
+  level: info
+
+# Monitoring configuration
+monitoring:
+  enabled: false

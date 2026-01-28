@@ -183,12 +183,21 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(taskReducer, initialState);
   const { user } = useAuth();
 
-  // Fetch tasks when user changes or filter changes or search query changes
+  // Fetch tasks when user logs in
   useEffect(() => {
     if (user) {
       refreshTasks();
     }
-  }, [user, state.filter, state.searchQuery]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // Refresh tasks when filter or search query changes (only if user is authenticated)
+  useEffect(() => {
+    if (user) {
+      refreshTasks();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.filter, state.searchQuery]);
 
   // ============================================================================
   // Helper Functions
@@ -203,7 +212,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       // Fetch tasks from API
       const response = await apiGet<{ data: Task[] }>(`/tasks`);
 
-      if (response.status === 'success' && response.data) {
+      if (response && response.data) {
         // Filter tasks client-side based on the state filter
         let filteredTasks = response.data;
 
@@ -234,10 +243,19 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
             total: filteredTasks.length,
           },
         });
+      } else {
+        // If data is missing for some reason, at least stop loading
+        dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: false });
       }
     } catch (error: any) {
-      const errorMessage = error.message || 'Failed to fetch tasks';
-      dispatch({ type: TASK_ACTIONS.SET_ERROR, payload: errorMessage });
+      // Don't show error if it's a 403 (user not authenticated)
+      if (error.message && !error.message.includes('403') && !error.message.includes('Forbidden')) {
+        const errorMessage = error.message || 'Failed to fetch tasks';
+        dispatch({ type: TASK_ACTIONS.SET_ERROR, payload: errorMessage });
+      } else {
+        // Silently fail for auth errors - user will be redirected to login
+        dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: false });
+      }
     }
   };
 
