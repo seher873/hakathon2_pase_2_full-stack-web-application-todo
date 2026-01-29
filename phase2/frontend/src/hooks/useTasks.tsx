@@ -6,7 +6,7 @@
  */
 
 import { createContext, useContext, useReducer, useEffect } from 'react';
-import { Task, TaskFilter, TaskListState, CreateTaskRequest, UpdateTaskRequest } from '../types';
+import { Task, TaskFilter, TaskListState, CreateTaskRequest, UpdateTaskRequest, TaskListResponse } from '../types';
 import { apiGet, apiPost, apiPut, apiDelete, apiPatch } from '../services/api';
 import { useAuth } from './useAuth';
 
@@ -210,21 +210,21 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
       // Fetch tasks from API
-      const response = await apiGet<{ data: Task[] }>(`/tasks`);
+      const response = await apiGet<TaskListResponse>(`/tasks`);
 
       if (response && response.data) {
         // Filter tasks client-side based on the state filter
-        let filteredTasks = response.data;
+        let filteredTasks = response.data.data; // Access the actual tasks array
 
         switch (state.filter) {
           case 'completed':
-            filteredTasks = response.data.filter(task => task.completed);
+            filteredTasks = response.data.data.filter(task => task.completed);
             break;
           case 'pending':
-            filteredTasks = response.data.filter(task => !task.completed);
+            filteredTasks = response.data.data.filter(task => !task.completed);
             break;
           default:
-            filteredTasks = response.data;
+            filteredTasks = response.data.data;
         }
 
         // Apply search query if present
@@ -240,7 +240,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
           type: TASK_ACTIONS.SET_TASKS,
           payload: {
             tasks: filteredTasks,
-            total: filteredTasks.length,
+            total: response.data.total ?? response.data.data.length,
           },
         });
       } else {
