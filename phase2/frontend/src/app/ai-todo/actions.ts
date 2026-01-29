@@ -7,6 +7,8 @@ import { revalidatePath } from 'next/cache';
  * @param command The natural language command from the user
  * @param token The JWT token passed from the client
  * @returns The result of processing the command
+ *
+ * Fixed: Import revalidatePath from 'next/cache' instead of 'next/server' for Next.js 13+
  */
 export async function processAICommand(command: string, token: string) {
   try {
