@@ -1,118 +1,51 @@
-# Phase-4: Containerized Deployment with Kubernetes
+# Phase-4: Docker Development Setup
 
-This directory contains all the deployment artifacts for containerizing and orchestrating the full application using Docker and Kubernetes.
-
-## Directory Structure
-
-```
-phase-4/
-├── docker/
-│   ├── backend.Dockerfile        # Phase-2 backend Docker
-│   ├── chatbot.Dockerfile        # Phase-3 AI chatbot Docker
-│   └── frontend.Dockerfile       # Phase-3 frontend Docker
-├── k8s/
-│   ├── backend-deployment.yaml
-│   ├── backend-service.yaml
-│   ├── chatbot-deployment.yaml
-│   ├── chatbot-service.yaml
-│   ├── frontend-deployment.yaml
-│   └── frontend-service.yaml
-├── env/
-│   ├── backend.env.example
-│   ├── chatbot.env.example
-│   └── frontend.env.example
-├── scripts/
-│   ├── build-images.sh
-│   ├── push-images.sh
-│   └── deploy-minikube.sh
-└── README.md
-```
-
-## Prerequisites
-
-- Docker
-- Kubernetes (or Minikube for local development)
-- kubectl
-
-## Quick Start
-
-### 1. Build Docker Images
-
-```bash
-cd phase-4
-./scripts/build-images.sh
-```
-
-### 2. Deploy to Minikube
-
-```bash
-./scripts/deploy-minikube.sh
-```
-
-### 3. Access the Application
-
-Once deployed, you can access the services using the exposed ports:
-
-- Frontend: `minikube service frontend-service`
-- Backend: `minikube service backend-service`
-- Chatbot: `minikube service chatbot-service`
-
-## Configuration
-
-### Environment Variables
-
-Before deploying, copy the example environment files and fill in your values:
-
-```bash
-# For backend
-cp env/backend.env.example env/backend.env
-
-# For chatbot
-cp env/chatbot.env.example env/chatbot.env
-
-# For frontend
-cp env/frontend.env.example env/frontend.env
-```
-
-### Kubernetes Secrets
-
-Create Kubernetes secrets from your environment files:
-
-```bash
-kubectl create secret generic app-secrets \
-  --from-env-file=env/backend.env \
-  --from-env-file=env/chatbot.env
-```
+This setup provides a Docker-based development environment with volume mounts for live reloading during development.
 
 ## Services
 
-### Phase-2 Backend
-- Handles user authentication and task management
-- Runs on port 4000
-- Connects to PostgreSQL database
+- **Backend**: Runs on port 8000
+- **Chatbot**: Runs on port 9000
+- **Frontend**: Runs on port 3000
 
-### Phase-3 Chatbot
-- AI-powered task management interface
-- Runs on port 8000
-- Integrates with Cohere API for NLP
+## Prerequisites
 
-### Frontend
-- React-based user interface
-- Runs on port 3000
-- Communicates with both backend and chatbot services
+- Docker Engine (v20+)
+- Docker Compose (v2+)
 
-## Scripts
+## How to Run
 
-- `build-images.sh`: Builds Docker images for all services
-- `push-images.sh`: Tags and pushes images to a registry
-- `deploy-minikube.sh`: Deploys the application to Minikube
+1. Navigate to the project root directory:
+   ```bash
+   cd /path/to/hakathon_2
+   ```
 
-## Production Deployment
+2. Start the development environment:
+   ```bash
+   docker-compose -f phase-4/docker-compose.dev.yml up
+   ```
 
-For production deployment, update the Kubernetes configurations to:
+3. To run in detached mode:
+   ```bash
+   docker-compose -f phase-4/docker-compose.dev.yml up -d
+   ```
 
-1. Use production-grade resource limits
-2. Enable horizontal pod autoscaling
-3. Configure persistent volumes for databases
-4. Set up SSL certificates
-5. Implement proper logging and monitoring
+4. To stop the development environment:
+   ```bash
+   docker-compose -f phase-4/docker-compose.dev.yml down
+   ```
+
+## Features
+
+- Volume mounts for live code reloading
+- Isolated development environment
+- Proper service dependencies
+- Hot reloading enabled for all services
+
+## Troubleshooting
+
+- If you encounter permission issues, make sure your project directory has proper read/write permissions.
+- For Node.js modules issues, try clearing the Docker volume cache:
+  ```bash
+  docker volume prune
+  ```

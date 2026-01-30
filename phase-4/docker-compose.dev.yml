@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ../../
+      dockerfile: ./phase-4/docker/backend.dev.Dockerfile
+    container_name: phase4-backend-dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../../:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    working_dir: /app/phase-2
+
+  chatbot:
+    build:
+      context: ../../
+      dockerfile: ./phase-4/docker/chatbot.dev.Dockerfile
+    container_name: phase4-chatbot-dev
+    ports:
+      - "9000:9000"
+    volumes:
+      - ../../:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    working_dir: /app/phase-3
+
+  frontend:
+    build:
+      context: ../../
+      dockerfile: ./phase-4/docker/frontend.dev.Dockerfile
+    container_name: phase4-frontend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    working_dir: /app/phase-3
+    depends_on:
+      - backend
+      - chatbot
+
+networks:
+  default:
+    name: phase4-dev-network
