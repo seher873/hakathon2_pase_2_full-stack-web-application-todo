@@ -4,14 +4,14 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy backend-specific package files from phase2/backend
+COPY ./phase2/backend/package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy application code
-COPY . .
+# Copy backend application code
+COPY ./phase2/backend/ ./
 
 # Expose port for backend
 EXPOSE 8000

@@ -4,14 +4,14 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy frontend-specific package files from phase2/frontend
+COPY ./phase2/frontend/package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy application code
-COPY . .
+# Copy frontend application code
+COPY ./phase2/frontend/ ./
 
 # Expose port for frontend
 EXPOSE 3000
