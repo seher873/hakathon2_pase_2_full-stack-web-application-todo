@@ -24,22 +24,12 @@ if ! command -v docker &> /dev/null; then
         echo "Installing dependencies for frontend..."
         cd ../frontend
         npm install
-        
-        # Navigate to phase3 backend (chatbot) and install Python dependencies
-        echo "Installing dependencies for chatbot..."
-        cd ../phase3/backend
-        if command -v python3 &> /dev/null && command -v pip3 &> /dev/null; then
-            pip3 install -r requirements.txt
-        else
-            echo "Python or pip not available. Please install Python 3 and pip."
-        fi
-        
+
         echo "Development environment setup completed!"
         echo ""
         echo "To run the services manually:"
         echo "1. Backend: cd ../phase2/backend && npm run dev"
-        echo "2. Chatbot: cd ../phase3/backend && python3 -m uvicorn main:app --reload --port 9000"
-        echo "3. Frontend: cd ../phase2/frontend && npm run dev"
+        echo "2. Frontend: cd ../phase2/frontend && npm run dev"
     else
         echo "Node.js is not available. Please install Node.js 20+ to continue."
     fi

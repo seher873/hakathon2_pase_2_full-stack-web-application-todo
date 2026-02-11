@@ -11,12 +11,6 @@ This document summarizes the implementation of the Docker-based development envi
   - Proper volume mount configuration for live debugging
   - Development command setup
 
-- **Chatbot Development Dockerfile** (`docker/chatbot.dev.Dockerfile`)
-  - Python 3.11 base image (corrected from initial Node.js approach)
-  - System dependencies installation for Python packages
-  - Requirements installation from phase3/backend
-  - Uvicorn server with hot reload capability
-
 - **Frontend Development Dockerfile** (`docker/frontend.dev.Dockerfile`)
   - Node.js 20 base image
   - Proper volume mount configuration for live debugging
@@ -24,10 +18,10 @@ This document summarizes the implementation of the Docker-based development envi
 
 ### 2. Docker Compose Configuration
 - **Development Compose File** (`docker-compose.dev.yml`)
-  - Services for backend, chatbot, and frontend
+  - Services for backend and frontend
   - Volume mounts for live code reloading
-  - Proper service dependencies (frontend depends on backend and chatbot)
-  - Port mappings for all services (3000, 8000, 9000)
+  - Proper service dependencies (frontend depends on backend)
+  - Port mappings for all services (3000, 8000)
   - Network configuration for inter-service communication
 
 ### 3. Documentation
@@ -47,12 +41,6 @@ This document summarizes the implementation of the Docker-based development envi
   - Port: 8000
   - Context: ../phase2/backend
   - Working directory: /app/phase2/backend
-
-- **Chatbot Service**:
-  - Port: 9000
-  - Context: ../phase3/backend
-  - Working directory: /app/phase3/backend
-  - Uses Python FastAPI with Uvicorn
 
 - **Frontend Service**:
   - Port: 3000

@@ -122,10 +122,46 @@ router.put('/:id', async (req: Request, res: Response) => {
       taskStatus = completed ? 'completed' : 'todo';
     }
 
-    const result = await pool.query(
-      'UPDATE tasks SET title = $1, description = $2, url = $3, status = $4 WHERE id = $5 AND user_id = $6 RETURNING *',
-      [title, description, url, taskStatus, taskId, userId]
-    );
+    // Prepare the fields to update
+    const updateFields = [];
+    const params = [];
+    let paramIndex = 1;
+
+    if (title !== undefined) {
+      updateFields.push(`title = $${paramIndex}`);
+      params.push(title);
+      paramIndex++;
+    }
+
+    if (description !== undefined) {
+      updateFields.push(`description = $${paramIndex}`);
+      params.push(description);
+      paramIndex++;
+    }
+
+    if (url !== undefined) {
+      updateFields.push(`url = $${paramIndex}`);
+      params.push(url);
+      paramIndex++;
+    }
+
+    if (taskStatus !== undefined) {
+      updateFields.push(`status = $${paramIndex}`);
+      params.push(taskStatus);
+      paramIndex++;
+    }
+
+    // Add the WHERE clause parameters
+    params.push(taskId, userId);
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({
+        error: 'At least one field must be provided for update'
+      });
+    }
+
+    const query = `UPDATE tasks SET ${updateFields.join(', ')} WHERE id = $${paramIndex} AND user_id = $${paramIndex + 1} RETURNING *`;
+    const result = await pool.query(query, params);
 
     res.status(200).json({
       data: result.rows[0],
@@ -201,18 +237,25 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     // @ts-ignore - User is attached by server-level authenticateToken middleware
     const userId = req.user.id;
-    const taskId = req.params.id;
+    const taskId = parseInt(req.params.id, 10); // Ensure taskId is a number
 
-    const result = await pool.query(
-      'DELETE FROM tasks WHERE id = $1 AND user_id = $2 RETURNING *',
+    // First, check if the task exists and belongs to the user
+    const existingTask = await pool.query(
+      'SELECT id FROM tasks WHERE id = $1 AND user_id = $2',
       [taskId, userId]
     );
 
-    if (result.rows.length === 0) {
+    if (existingTask.rows.length === 0) {
       return res.status(404).json({
         error: 'Task not found or does not belong to user'
       });
     }
+
+    // Perform the deletion
+    await pool.query(
+      'DELETE FROM tasks WHERE id = $1 AND user_id = $2',
+      [taskId, userId]
+    );
 
     res.status(200).json({
       message: 'Task deleted successfully'

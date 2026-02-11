@@ -1,74 +1,94 @@
-# Phase-4: Docker Development Setup
+# Phase-4 Backend Service Deployment Guide
 
-This setup provides a Docker-based development environment with volume mounts for live reloading during development.
-
-## Services
-
-- **Backend**: Runs on port 8000
-- **Chatbot**: Runs on port 9000
-- **Frontend**: Runs on port 3000
+This document provides instructions for deploying the Phase-4 backend service to a local Minikube cluster.
 
 ## Prerequisites
 
-- Docker Engine (v20+) and Docker Compose (v2+) OR
-- Node.js 20, Python 3.11, and required dependencies
+- Docker (with sufficient disk space - at least 5GB free)
+- Minikube
+- kubectl
+- Node.js (for local development/testing)
 
-## How to Run
+## Pre-deployment Steps
 
-### Option 1: Using Docker (Recommended)
-1. Navigate to the phase-4 directory:
-   ```bash
-   cd /path/to/hakathon_2/phase-4
-   ```
+### 1. Clean Old Images
+```bash
+docker system prune -a
+```
 
-2. Start the development environment:
-   ```bash
-   docker compose -f docker-compose.dev.yml up --build
-   ```
+### 2. Ensure Sufficient Disk Space
+Make sure you have at least 5GB of free disk space before proceeding with Docker operations.
 
-3. To run in detached mode:
-   ```bash
-   docker compose -f docker-compose.dev.yml up --build -d
-   ```
+### 3. Start Minikube
+```bash
+minikube start
+```
 
-4. To stop the development environment:
-   ```bash
-   docker compose -f docker-compose.dev.yml down
-   ```
+### 4. Set Docker Environment to Use Minikube
+```bash
+eval $(minikube docker-env)
+```
 
-### Option 2: Manual Setup (Alternative)
-If Docker is not available or not working, you can set up the development environment manually:
+## Deployment Steps
 
-1. Run the setup script:
-   ```bash
-   chmod +x setup-dev-env.sh
-   ./setup-dev-env.sh
-   ```
+### 1. Build Fresh Docker Image
+```bash
+docker build --no-cache -t phase4-backend:v1 -f Dockerfile .
+```
 
-2. Start each service individually:
-   - Backend: `cd ../phase2/backend && npm install && npm run dev`
-   - Chatbot: `cd ../phase3/backend && pip install -r requirements.txt && python3 -m uvicorn main:app --reload --port 9000`
-   - Frontend: `cd ../phase2/frontend && npm install && npm run dev`
+### 2. Verify Image Was Built
+```bash
+docker images | grep phase4-backend
+```
 
-## Features
+### 3. Deploy to Minikube
+```bash
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+```
 
-- Volume mounts for live code reloading (Docker option)
-- Isolated development environment (Docker option)
-- Proper service dependencies
-- Hot reloading enabled for all services
+### 4. Verify Deployment
+```bash
+kubectl get pods
+kubectl get services
+```
+
+### 5. Access the Service
+```bash
+minikube service phase4-backend-service
+```
+
+Or get the URL directly:
+```bash
+minikube service phase4-backend-service --url
+```
 
 ## Troubleshooting
 
-### Docker Issues
-- If you encounter Docker bus errors, ensure Docker Desktop is running properly
-- Check that you have sufficient disk space and memory allocated to Docker
-- For permission issues, make sure your project directory has proper read/write permissions
-- For Node.js modules issues, try clearing the Docker volume cache:
-  ```bash
-  docker volume prune
-  ```
+### Pod Status Issues
+If the pod is not running or in CrashLoopBackOff:
+```bash
+kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+```
 
-### Manual Setup Issues
-- Ensure Node.js 20+ is installed: `node --version`
-- Ensure Python 3.11+ is installed: `python3 --version`
-- Ensure pip is available: `pip3 --version`
+### Service Access Issues
+If you can't access the service:
+```bash
+kubectl get svc phase4-backend-service
+```
+
+### Clean Up
+To remove the deployment and service:
+```bash
+kubectl delete -f service.yaml
+kubectl delete -f deployment.yaml
+```
+
+## Notes
+
+- The Dockerfile uses Node.js 20-alpine as the base image
+- The application runs on port 8000 inside the container
+- The service exposes the application via NodePort on port 30080
+- The imagePullPolicy is set to "Never" to ensure Minikube uses the local image
+- Health checks are implemented via the /health endpoint

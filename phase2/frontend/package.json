@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -23,7 +23,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.26.2",
     "lucide-react": "^0.562.0",
-    "next": "^16.1.1",
+    "next": "14.2.22",
     "postcss": "^8.4.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
@@ -35,8 +35,13 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.15.8",
     "@types/jest": "^29.5.0",
     "@types/react-dom": "^19.0.0",
     "jest": "^29.7.0"
+  },
+  "netlify": {
+    "publish": "out",
+    "functions": "netlify/functions"
   }
 }

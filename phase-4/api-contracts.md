@@ -1,7 +1,7 @@
 # API Contracts: Phase-4 Docker Development Environment
 
 ## Overview
-This document defines the API contracts for the services running in the Docker development environment. These contracts represent the interfaces between the frontend, backend, and AI chatbot services.
+This document defines the API contracts for the services running in the Docker development environment. These contracts represent the interfaces between the frontend and backend services.
 
 ## Backend Service API Contract
 
@@ -27,26 +27,6 @@ This document defines the API contracts for the services running in the Docker d
 #### Health Check
 - `GET /health` - Health check endpoint
 
-## Chatbot Service API Contract
-
-### Base URL
-`http://chatbot:9000` (within Docker network)
-`http://localhost:9000` (from host)
-
-### Endpoints
-
-#### Chat Interface
-- `POST /chat` - Send a message to the AI chatbot
-  Request Body: `{ "message": "string", "userId": "string", "sessionId": "string" }`
-  Response: `{ "reply": "string", "timestamp": "datetime" }`
-
-#### Session Management
-- `POST /session/new` - Create a new chat session
-- `GET /session/{sessionId}` - Get session details
-- `DELETE /session/{sessionId}` - End a chat session
-
-#### Health Check
-- `GET /health` - Health check endpoint
 
 ## Frontend Service API Contract
 
@@ -62,24 +42,13 @@ This document defines the API contracts for the services running in the Docker d
 
 #### API Proxy
 - `GET /api/*` - Proxy requests to backend service
-- `GET /chat/*` - Proxy requests to chatbot service
 
 ## Inter-Service Communication
-
-### Backend-Chatbot Communication
-The chatbot service may need to access user data from the backend service:
-- `GET http://backend:8000/users/{userId}` - Retrieve user information for chat context
 
 ### Frontend-Backend Communication
 The frontend communicates with the backend for task management:
 - Authentication and user data
 - Task CRUD operations
-- Health status
-
-### Frontend-Chatbot Communication
-The frontend communicates with the chatbot for AI interactions:
-- Chat messages
-- Session management
 - Health status
 
 ## Common Headers

@@ -213,25 +213,28 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       const response = await apiGet<TaskListResponse>(`/tasks`);
 
       if (response && response.data) {
+        // Ensure response.data.data is an array before processing
+        let tasksArray = Array.isArray(response.data.data) ? response.data.data : [];
+        
         // Filter tasks client-side based on the state filter
-        let filteredTasks = response.data.data; // Access the actual tasks array
+        let filteredTasks = tasksArray;
 
         switch (state.filter) {
           case 'completed':
-            filteredTasks = response.data.data.filter(task => task.completed);
+            filteredTasks = tasksArray.filter(task => task.completed);
             break;
           case 'pending':
-            filteredTasks = response.data.data.filter(task => !task.completed);
+            filteredTasks = tasksArray.filter(task => !task.completed);
             break;
           default:
-            filteredTasks = response.data.data;
+            filteredTasks = tasksArray;
         }
 
         // Apply search query if present
         if (state.searchQuery.trim()) {
           const searchTerm = state.searchQuery.trim().toLowerCase();
           filteredTasks = filteredTasks.filter(task =>
-            task.title.toLowerCase().includes(searchTerm) ||
+            task.title?.toLowerCase().includes(searchTerm) ||
             (task.description && task.description.toLowerCase().includes(searchTerm))
           );
         }
@@ -240,12 +243,18 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
           type: TASK_ACTIONS.SET_TASKS,
           payload: {
             tasks: filteredTasks,
-            total: response.data.total ?? response.data.data.length,
+            total: response.data.total ?? tasksArray.length,
           },
         });
       } else {
         // If data is missing for some reason, at least stop loading
-        dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: false });
+        dispatch({ 
+          type: TASK_ACTIONS.SET_TASKS,
+          payload: {
+            tasks: [],
+            total: 0,
+          },
+        });
       }
     } catch (error: any) {
       // Don't show error if it's a 403 (user not authenticated)

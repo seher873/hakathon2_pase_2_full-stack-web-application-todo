@@ -77,11 +77,19 @@ python main.py
 
 ### Phase 4 (Deployment)
 ```bash
-# Build and deploy
+# Build and deploy with Docker Compose (Recommended for local development)
+docker-compose up --build
+
+# Or build and deploy with Kubernetes (Production)
 cd phase-4
 ./scripts/build-images.sh
 ./scripts/deploy-minikube.sh
 ```
+
+## Database Configuration
+- **Development**: SQLite is allowed (default for local development)
+- **Production**: PostgreSQL with Neon is required (as documented in phase2/backend/.env.example)
+- **Environment Variable**: Use `USE_POSTGRES=true` and `DATABASE_URL=postgresql://...` for production environments
 
 ## API Integration
 

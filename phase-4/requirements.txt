@@ -8,3 +8,5 @@ pydantic==2.5.1
 
 sqlalchemy==2.0.24
 
+PyJWT==2.8.0
+

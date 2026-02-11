@@ -12,8 +12,16 @@ COPY phase2/frontend/tsconfig.json ./
 # Install dependencies
 RUN npm ci
 
-# Copy source code
-COPY phase2/frontend/ .
+# Copy frontend source files individually to avoid node_modules
+COPY phase2/frontend/src ./src
+COPY phase2/frontend/lib ./lib
+COPY phase2/frontend/next.config.js ./
+COPY phase2/frontend/tsconfig.json ./
+COPY phase2/frontend/postcss.config.js ./
+COPY phase2/frontend/tailwind.config.js ./
+COPY phase2/frontend/components.json ./
+COPY phase2/frontend/next-env.d.ts ./
+COPY phase2/frontend/.env* ./
 
 # Build the Next.js app
 RUN npm run build

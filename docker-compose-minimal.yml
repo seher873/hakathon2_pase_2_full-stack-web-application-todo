@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # Phase 2 - Backend (Node.js/TypeScript)
+  backend:
+    build:
+      context: ./phase2/backend
+      dockerfile: Dockerfile
+    container_name: todo-backend-minimal
+    ports:
+      - "3001:4000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - API_PORT=4000
+      - DATABASE_URL=file:./hackathon_dev.db
+    networks:
+      - todo-network
+    restart: unless-stopped
+
+  # Phase 2 - Frontend (Next.js)
+  frontend:
+    build:
+      context: ./phase2/frontend
+      dockerfile: Dockerfile
+    container_name: todo-frontend-minimal
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:3001  # Changed from http://backend:3001 to http://localhost:3001
+    depends_on:
+      - backend
+    networks:
+      - todo-network
+    restart: unless-stopped
+
+networks:
+  todo-network:
+    driver: bridge

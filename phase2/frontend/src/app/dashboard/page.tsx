@@ -9,7 +9,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { tasks, isLoading, error, createTask, updateTask, deleteTask, toggleTaskComplete } = useTasks();
+  const { 
+    tasks, 
+    isLoading, 
+    error, 
+    createTask, 
+    updateTask, 
+    deleteTask, 
+    toggleTaskComplete,
+    filter,
+    searchQuery,
+    setFilter,
+    setSearchQuery
+  } = useTasks();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
 
@@ -41,22 +53,6 @@ export default function DashboardPage() {
   const handleCancelEdit = () => {
     setEditingTask(null);
   };
-
-  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Filter tasks based on the selected filter
-  const filteredTasks = tasks.filter(task => {
-    if (filter === 'completed') return task.completed;
-    if (filter === 'pending') return !task.completed;
-    return true; // 'all' filter
-  });
-
-  // Further filter based on search query
-  const searchedTasks = filteredTasks.filter(task => 
-    task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -99,7 +95,7 @@ export default function DashboardPage() {
             )}
 
             <TaskList
-              tasks={searchedTasks}
+              tasks={tasks}
               isLoading={isLoading}
               error={error}
               onDelete={deleteTask}

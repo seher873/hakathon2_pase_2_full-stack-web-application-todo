@@ -1,27 +1,23 @@
-# Development Dockerfile for Chatbot Service
 FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies needed for some Python packages
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
-    g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements file
-COPY ./phase3/backend/requirements.txt .
+# Copy requirements and install Python dependencies
+COPY phase3/backend/requirements.txt .
+RUN pip install --no-cache-dir --timeout=300 -r requirements.txt
 
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Copy the application code
+COPY . .
 
-# Copy application code
-COPY ./phase3/backend/ ./
+WORKDIR /app/phase3/backend
 
-# Expose port for chatbot service
+# Expose the port the app runs on
 EXPOSE 9000
 
-# Start the application in development mode with hot reloading
-CMD ["python3", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000", "--reload"]
+# The command will be overridden by docker-compose.dev-modified.yml
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]

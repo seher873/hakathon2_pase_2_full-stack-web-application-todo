@@ -1,7 +1,7 @@
 # Quickstart Guide: Phase-4 Docker Development Environment
 
 ## Overview
-This guide provides quick setup instructions for the Docker-based development environment with volume mounts for live debugging of the Phase-2 backend and Phase-3 AI chatbot/fullstack application.
+This guide provides quick setup instructions for the Docker-based development environment with volume mounts for live debugging of the Node.js fullstack application.
 
 ## Prerequisites
 - Docker Engine (v20+)
@@ -29,8 +29,7 @@ docker-compose -f phase-4/docker-compose.dev.yml up
 
 ### 4. Access the Services
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **AI Chatbot**: http://localhost:9000
+- **Backend API**: http://localhost:4001 (container port 8000)
 
 ## Development Workflow
 
@@ -57,7 +56,7 @@ docker-compose -f phase-4/docker-compose.dev.yml down
 ## Troubleshooting
 
 ### Common Issues
-1. **Port Already in Use**: Ensure ports 3000, 8000, and 9000 are available
+1. **Port Already in Use**: Ensure ports 3000 and 4001 are available
 2. **Permission Errors**: Check file permissions on the project directory
 3. **Module Issues**: If experiencing node_modules issues, try clearing Docker volumes:
    ```bash
@@ -70,24 +69,18 @@ Check that all services are running:
 docker ps
 ```
 
-You should see three containers running:
+You should see two containers running:
 - phase4-backend-dev
-- phase4-chatbot-dev
 - phase4-frontend-dev
 
 ## Service Details
 
 ### Backend Service
-- Runs on port 8000
+- Runs on port 8000 in container (exposed as port 4001 on host)
 - Contains Phase-2 backend code
 - Connects to external PostgreSQL database
 
-### Chatbot Service
-- Runs on port 9000
-- Contains Phase-3 AI chatbot functionality
-- Communicates with backend service
-
 ### Frontend Service
 - Runs on port 3000
-- Contains Phase-3 frontend application
-- Connects to backend and chatbot services
+- Contains Phase-2 frontend application
+- Connects to backend service

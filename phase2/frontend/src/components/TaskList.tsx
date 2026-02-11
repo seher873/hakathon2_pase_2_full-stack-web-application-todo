@@ -29,8 +29,8 @@ export const TaskList: React.FC<TaskListProps> = ({
   });
 
   // Count tasks by status
-  const completedCount = tasks.filter(t => t.completed).length;
-  const pendingCount = tasks.length - completedCount;
+  const completedCount = tasks?.filter(t => t.completed)?.length || 0;
+  const pendingCount = (tasks?.length || 0) - completedCount;
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -38,7 +38,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       <div className="bg-gray-50 px-4 py-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
         <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center gap-2 md:gap-3 w-full md:w-auto">
           <div className="text-sm text-gray-600 bg-white px-2 py-1 rounded-md shadow-sm border border-gray-200 mb-2 md:mb-0 min-w-[80px] text-center md:text-left">
-            {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+            {tasks?.length || 0} {(tasks?.length || 0) === 1 ? 'task' : 'tasks'}
           </div>
 
           <div className="flex flex-wrap gap-2 justify-center md:justify-start">
@@ -50,7 +50,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                   : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
               }`}
             >
-              All ({tasks.length})
+              All ({tasks?.length || 0})
             </button>
             <button
               onClick={() => onFilterChange('pending')}
@@ -133,7 +133,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       )}
 
       {/* Empty State */}
-      {!isLoading && filteredTasks.length === 0 && (
+      {!isLoading && (!filteredTasks || filteredTasks.length === 0) && (
         <div className="px-4 py-12 text-center">
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4">
             <svg
@@ -168,7 +168,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       )}
 
       {/* Task List */}
-      {filteredTasks.length > 0 && (
+      {filteredTasks && filteredTasks.length > 0 && (
         <ul className="divide-y divide-gray-100">
           {filteredTasks.map((task) => (
             <TaskItem

@@ -1,0 +1,22 @@
+{
+  "name": "phase-4",
+  "version": "1.0.0",
+  "description": "Phase-4: Docker Development Setup",
+  "main": "index.js",
+  "scripts": {
+    "clean": "docker system prune -a --volumes",
+    "build": "docker build --no-cache -t phase4-backend:v1 .",
+    "minikube-start": "minikube start",
+    "minikube-env": "eval $(minikube docker-env)",
+    "deploy": "kubectl apply -f deployment.yaml -f service.yaml",
+    "undeploy": "kubectl delete -f deployment.yaml -f service.yaml"
+  },
+  "keywords": [
+    "docker",
+    "kubernetes",
+    "minikube",
+    "backend"
+  ],
+  "author": "",
+  "license": "ISC"
+}

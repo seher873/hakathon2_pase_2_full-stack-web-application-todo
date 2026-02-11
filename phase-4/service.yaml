@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: phase4-backend-service
+  labels:
+    app: phase4-backend
+spec:
+  selector:
+    app: phase4-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+      nodePort: 30080  # Explicitly set nodePort for NodePort service
+  type: NodePort  # Required service type
