@@ -216,6 +216,8 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - In-memory storage for execution state (no persistent storage required for core functionality) (001-execution-skill)
 - TypeScript 5.x for frontend, Node.js 20.x for backend (001-ai-chatbot)
 - PostgreSQL database on Neon DB (existing infrastructure) (001-ai-chatbot)
+- Node.js 20 + Docker, Docker Compose, Next.js (004-docker-dev-setup)
+- PostgreSQL (external Neon database) (004-docker-dev-setup)
 
 ## Recent Changes
 - 002-intent-understanding-skill: Added Python 3.9 + spaCy for NLP processing, FastAPI for web framework, Pydantic for data validation

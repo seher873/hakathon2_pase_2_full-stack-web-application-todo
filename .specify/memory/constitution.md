@@ -4,7 +4,8 @@
 
 ### I. Spec-Driven Development (SDD)
 
-All work must be grounded in written specifications. Every feature begins with a spec document that clarifies requirements, acceptance criteria, and scope. Specifications drive planning, task generation, and implementation validation. Spec-first ensures shared understanding between architects, developers, and stakeholders before code is written.
+All work must be grounded in written specifications. Every feature b
+egins with a spec document that clarifies requirements, acceptance criteria, and scope. Specifications drive planning, task generation, and implementation validation. Spec-first ensures shared understanding between architects, developers, and stakeholders before code is written.
 
 ### II. Explicit Planning & Architecture
 

@@ -30,19 +30,19 @@ case $ACTION in
 
         # Build Docker images
         echo "Building Docker images..."
-        docker build -f phase-4/Dockerfile.backend -t todo-app-backend:latest . || {
+        docker build -f phase-4/docker/backend.Dockerfile -t todo-app-backend:latest . || {
             echo "Failed to build backend image"
             exit 1
         }
 
         # Use corrected Dockerfile for React frontend
-        if [ -f "phase-4/Dockerfile.frontend.corrected" ]; then
-            docker build -f phase-4/Dockerfile.frontend.corrected -t todo-app-frontend:latest . || {
+        if [ -f "phase-4/docker/frontend.Dockerfile" ]; then
+            docker build -f phase-4/docker/frontend.Dockerfile -t todo-app-frontend:latest . || {
                 echo "Failed to build frontend image"
                 exit 1
             }
         else
-            docker build -f phase-4/Dockerfile.frontend -t todo-app-frontend:latest . || {
+            docker build -f phase-4/docker/frontend.Dockerfile -t todo-app-frontend:latest . || {
                 echo "Failed to build frontend image"
                 exit 1
             }

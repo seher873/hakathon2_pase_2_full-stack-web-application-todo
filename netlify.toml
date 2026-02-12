@@ -1,8 +1,10 @@
 [build]
   base = "phase2/frontend"
-  publish = "out"
   command = "npm install && npm run build"
 
 [build.environment]
   NODE_VERSION = "20"
-  NPM_VERSION = "10"
+  NEXT_PUBLIC_API_BASE_URL = "https://your-backend-url.com"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

@@ -1,0 +1,86 @@
+services:
+  # Phase 2 - Frontend (Next.js)
+  frontend:
+    build:
+      context: ./phase2/frontend
+      dockerfile: Dockerfile
+    container_name: todo-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://backend:3001
+      - NEXT_PUBLIC_CHATBOT_API_URL=http://chatbot:9000
+    depends_on:
+      - backend
+      - chatbot
+    networks:
+      - todo-network
+    restart: unless-stopped
+
+  # Phase 2 - Backend (Node.js/TypeScript)
+  backend:
+    build:
+      context: ./phase2/backend
+      dockerfile: Dockerfile
+    container_name: todo-backend
+    ports:
+      - "3001:4000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - API_PORT=4000
+      - DATABASE_URL=file:./hackathon_dev.db
+    volumes:
+      - backend-data:/app
+    networks:
+      - todo-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Phase 3 - AI Chatbot (Python/FastAPI)
+  chatbot:
+    build:
+      context: ./phase3/backend
+      dockerfile: Dockerfile
+    container_name: todo-chatbot
+    ports:
+      - "9000:9000"
+    env_file:
+      - .env
+      - ./phase3/backend/.env
+    environment:
+      - PORT=9000
+      - BACKEND_URL=http://backend:3001
+      - COHERE_API_KEY=${COHERE_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-}
+    volumes:
+      - chatbot-data:/app
+    networks:
+      - todo-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:9000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  todo-network:
+    driver: bridge
+
+volumes:
+  backend-data:
+    driver: local
+  chatbot-data:
+    driver: local

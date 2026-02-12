@@ -1,0 +1,53 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: ./phase-4/docker/backend.dev.Dockerfile
+    container_name: phase4-backend-dev
+    ports:
+      - "4001:8000"
+    volumes:
+      - ..:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    working_dir: /app/phase2/backend
+
+  chatbot:
+    build:
+      context: ..
+      dockerfile: ./phase-4/docker/chatbot.dev.Dockerfile
+    container_name: phase4-chatbot-dev
+    ports:
+      - "9000:9000"
+    volumes:
+      - ..:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: python3 -m uvicorn main:app --host 0.0.0.0 --port 9000 --reload
+    working_dir: /app/phase3/backend
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: ./phase-4/docker/frontend.dev.Dockerfile
+    container_name: phase4-frontend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ..:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    command: sh -c "npm run dev -- --webpack"
+    working_dir: /app/phase2/frontend
+    depends_on:
+      - backend
+      - chatbot
+
+networks:
+  default:
+    name: phase4-dev-network

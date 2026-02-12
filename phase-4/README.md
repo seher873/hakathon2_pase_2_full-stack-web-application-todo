@@ -1,118 +1,94 @@
-# Phase-4: Containerized Deployment with Kubernetes
+# Phase-4 Backend Service Deployment Guide
 
-This directory contains all the deployment artifacts for containerizing and orchestrating the full application using Docker and Kubernetes.
-
-## Directory Structure
-
-```
-phase-4/
-├── docker/
-│   ├── backend.Dockerfile        # Phase-2 backend Docker
-│   ├── chatbot.Dockerfile        # Phase-3 AI chatbot Docker
-│   └── frontend.Dockerfile       # Phase-3 frontend Docker
-├── k8s/
-│   ├── backend-deployment.yaml
-│   ├── backend-service.yaml
-│   ├── chatbot-deployment.yaml
-│   ├── chatbot-service.yaml
-│   ├── frontend-deployment.yaml
-│   └── frontend-service.yaml
-├── env/
-│   ├── backend.env.example
-│   ├── chatbot.env.example
-│   └── frontend.env.example
-├── scripts/
-│   ├── build-images.sh
-│   ├── push-images.sh
-│   └── deploy-minikube.sh
-└── README.md
-```
+This document provides instructions for deploying the Phase-4 backend service to a local Minikube cluster.
 
 ## Prerequisites
 
-- Docker
-- Kubernetes (or Minikube for local development)
+- Docker (with sufficient disk space - at least 5GB free)
+- Minikube
 - kubectl
+- Node.js (for local development/testing)
 
-## Quick Start
+## Pre-deployment Steps
 
-### 1. Build Docker Images
-
+### 1. Clean Old Images
 ```bash
-cd phase-4
-./scripts/build-images.sh
+docker system prune -a
 ```
 
-### 2. Deploy to Minikube
+### 2. Ensure Sufficient Disk Space
+Make sure you have at least 5GB of free disk space before proceeding with Docker operations.
 
+### 3. Start Minikube
 ```bash
-./scripts/deploy-minikube.sh
+minikube start
 ```
 
-### 3. Access the Application
-
-Once deployed, you can access the services using the exposed ports:
-
-- Frontend: `minikube service frontend-service`
-- Backend: `minikube service backend-service`
-- Chatbot: `minikube service chatbot-service`
-
-## Configuration
-
-### Environment Variables
-
-Before deploying, copy the example environment files and fill in your values:
-
+### 4. Set Docker Environment to Use Minikube
 ```bash
-# For backend
-cp env/backend.env.example env/backend.env
-
-# For chatbot
-cp env/chatbot.env.example env/chatbot.env
-
-# For frontend
-cp env/frontend.env.example env/frontend.env
+eval $(minikube docker-env)
 ```
 
-### Kubernetes Secrets
+## Deployment Steps
 
-Create Kubernetes secrets from your environment files:
-
+### 1. Build Fresh Docker Image
 ```bash
-kubectl create secret generic app-secrets \
-  --from-env-file=env/backend.env \
-  --from-env-file=env/chatbot.env
+docker build --no-cache -t phase4-backend:v1 -f Dockerfile .
 ```
 
-## Services
+### 2. Verify Image Was Built
+```bash
+docker images | grep phase4-backend
+```
 
-### Phase-2 Backend
-- Handles user authentication and task management
-- Runs on port 4000
-- Connects to PostgreSQL database
+### 3. Deploy to Minikube
+```bash
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+```
 
-### Phase-3 Chatbot
-- AI-powered task management interface
-- Runs on port 8000
-- Integrates with Cohere API for NLP
+### 4. Verify Deployment
+```bash
+kubectl get pods
+kubectl get services
+```
 
-### Frontend
-- React-based user interface
-- Runs on port 3000
-- Communicates with both backend and chatbot services
+### 5. Access the Service
+```bash
+minikube service phase4-backend-service
+```
 
-## Scripts
+Or get the URL directly:
+```bash
+minikube service phase4-backend-service --url
+```
 
-- `build-images.sh`: Builds Docker images for all services
-- `push-images.sh`: Tags and pushes images to a registry
-- `deploy-minikube.sh`: Deploys the application to Minikube
+## Troubleshooting
 
-## Production Deployment
+### Pod Status Issues
+If the pod is not running or in CrashLoopBackOff:
+```bash
+kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+```
 
-For production deployment, update the Kubernetes configurations to:
+### Service Access Issues
+If you can't access the service:
+```bash
+kubectl get svc phase4-backend-service
+```
 
-1. Use production-grade resource limits
-2. Enable horizontal pod autoscaling
-3. Configure persistent volumes for databases
-4. Set up SSL certificates
-5. Implement proper logging and monitoring
+### Clean Up
+To remove the deployment and service:
+```bash
+kubectl delete -f service.yaml
+kubectl delete -f deployment.yaml
+```
+
+## Notes
+
+- The Dockerfile uses Node.js 20-alpine as the base image
+- The application runs on port 8000 inside the container
+- The service exposes the application via NodePort on port 30080
+- The imagePullPolicy is set to "Never" to ensure Minikube uses the local image
+- Health checks are implemented via the /health endpoint

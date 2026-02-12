@@ -1,0 +1,8 @@
+# Python dependencies that might be used with Next.js project
+# For build scripts, testing, or other tooling
+
+requests==2.32.3
+python-dotenv==1.0.1
+pytest==8.3.4
+black==24.10.0
+flake8==7.1.1
