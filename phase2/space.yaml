@@ -2,12 +2,13 @@
 type: docker
 dockerfile: backend/Dockerfile
 build_args:
-  - PORT=7860
+  - PORT=4000
 env:
   - API_HOST=0.0.0.0
+  - API_PORT=4000
   - USE_POSTGRES=false  # Using SQLite for simplicity in the Space
   - JWT_SECRET=supersecretkeyforhuggingfacespacethatshouldbeverylong
   - ENVIRONMENT=production
 ports:
-  - 7860
+  - 4000
 api: true
