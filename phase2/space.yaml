@@ -1,0 +1,13 @@
+# Hugging Face Space configuration for the backend API
+type: docker
+dockerfile: backend/Dockerfile
+build_args:
+  - PORT=7860
+env:
+  - API_HOST=0.0.0.0
+  - USE_POSTGRES=false  # Using SQLite for simplicity in the Space
+  - JWT_SECRET=supersecretkeyforhuggingfacespacethatshouldbeverylong
+  - ENVIRONMENT=production
+ports:
+  - 7860
+api: true
