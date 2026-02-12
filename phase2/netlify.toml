@@ -1,7 +1,7 @@
 [build]
-  base = "phase2/frontend"
-  command = "cd phase2/frontend && npm install && npm run build"
-  publish = "phase2/frontend/.next"
+  base = "frontend"
+  command = "cd frontend && npm install && npm run build"
+  publish = "frontend/.next"
 
 [build.environment]
   NODE_VERSION = "20"
@@ -12,6 +12,6 @@
 
 # Context for Phase 3 frontend deployment (Create React App)
 [context.phase3]
-  base = "phase3/frontend"
-  command = "cd phase3/frontend && npm install && npm run build"
-  publish = "phase3/frontend/build"
+  base = "../phase3/frontend"
+  command = "cd ../phase3/frontend && npm install && npm run build"
+  publish = "../phase3/frontend/build"
