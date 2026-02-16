@@ -1,30 +1,25 @@
-# Multi-stage build for Node.js backend
-FROM node:20-alpine AS base
+# Use a Node.js base image
+FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
-FROM base AS deps
-COPY package*.json ./
-RUN npm ci --only=production
+# Install curl for health checks
+RUN apk add --no-cache curl
 
-# Build stage
-FROM base AS build
+# Copy package files
 COPY package*.json ./
+
+# Install dependencies (including dev dependencies for building)
 RUN npm ci
+
+# Copy source files
 COPY . .
+
+# Build the TypeScript code
 RUN npm run build
 
-# Production stage
-FROM base AS production
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
-COPY package*.json ./
-COPY .env.example ./
-COPY README.md ./
-
-# Create non-root user
+# Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
@@ -32,12 +27,13 @@ RUN addgroup -g 1001 -S nodejs && \
 RUN chown -R nextjs:nodejs /app
 USER nextjs
 
-# Expose port
-EXPOSE 4000
+# Expose port required by Hugging Face Spaces
+ENV PORT=7860
+EXPOSE 7860
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:4000/api/health || exit 1
+    CMD curl -f http://localhost:$PORT/api/health || exit 1
 
-# Run the application
-CMD ["node", "dist/server.js"]
+# Start the application
+CMD ["npm", "start"]

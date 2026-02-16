@@ -16,7 +16,7 @@ COPY ./phase2/backend/dist ./dist
 COPY ./phase2/backend/tsconfig.json ./
 COPY ./phase2/backend/nodemon.json ./
 COPY ./phase2/backend/.env* ./
-COPY ./phase2/backend/README.md ./
+
 
 # Expose port for backend
 EXPOSE 8000

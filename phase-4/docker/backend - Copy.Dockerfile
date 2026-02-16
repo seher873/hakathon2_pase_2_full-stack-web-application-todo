@@ -14,7 +14,7 @@ COPY phase2/backend/src ./src
 COPY phase2/backend/tsconfig.json ./
 COPY phase2/backend/nodemon.json ./
 COPY phase2/backend/.env* ./
-COPY phase2/backend/README.md ./
+
 
 # Build the application
 RUN npm run build
