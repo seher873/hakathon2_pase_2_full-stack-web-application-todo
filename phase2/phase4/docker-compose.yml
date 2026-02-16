@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: phase4/backend.Dockerfile
+    ports:
+      - "8000:4001"  # Maps host port 8000 to container port 4001
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: phase4/frontend.Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_URL=http://backend:4001
+      - API_URL=http://backend:4001
+    networks:
+      - app-network
+
+  chatbot:
+    build:
+      context: ../phase3/backend  # Assuming chatbot is in phase3/backend
+      dockerfile: Dockerfile
+    ports:
+      - "80:9000"  # Maps host port 80 to container port 9000
+    environment:
+      - NODE_ENV=production
+      - BACKEND_URL=http://backend:4001
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

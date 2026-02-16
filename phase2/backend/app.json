@@ -1,0 +1,7 @@
+{
+  "name": "Phase2 Backend API",
+  "description": "TODO assistant API with Hugging Face integration",
+  "repository": "https://github.com/your-repo/phase2-backend",
+  "logo": "",
+  "keywords": ["nodejs", "express", "huggingface", "todo", "ai"]
+}

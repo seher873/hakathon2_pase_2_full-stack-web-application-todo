@@ -1,0 +1,34 @@
+import uvicorn
+from app.main import app
+import os
+import sys
+from sqlmodel import SQLModel
+from app.database import engine
+from contextlib import asynccontextmanager
+
+def create_db_and_tables():
+    try:
+        print("Creating database tables...")
+        SQLModel.metadata.create_all(engine)
+        print("Database tables created successfully!")
+    except Exception as e:
+        print(f"Warning: Could not create tables: {e}")
+        # Continue anyway - might be a connection issue that doesn't affect startup
+
+if __name__ == "__main__":
+    # Create tables on startup
+    create_db_and_tables()
+
+    print("Starting FastAPI server...")
+    print("Server will be available at: http://localhost:4001")
+    print("API docs: http://localhost:4001/docs")
+    print("Health check: http://localhost:4001/health")
+
+    # Run the server on port 4001 to match frontend config
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=4001,
+        reload=False,  # Disable reload for production testing
+        log_level="info"
+    )
