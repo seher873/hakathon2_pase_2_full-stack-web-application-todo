@@ -50,39 +50,7 @@ All PRs and code reviews must verify Constitution compliance. Deviations require
 The core application providing essential task management functionality with a beautiful, responsive UI.
 Transformed from Python/FastAPI to Node.js/TypeScript/Express with JWT authentication and PostgreSQL.
 
-### Structure
-```
-phase2/
-├── frontend/          # React/Next.js frontend
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── TaskCard.tsx
-│   │   │   ├── TaskList.tsx
-│   │   │   ├── Header.tsx
-│   │   │   └── Button.tsx
-│   │   ├── pages/
-│   │   ├── styles/
-│   │   └── utils/
-│   ├── public/
-│   ├── package.json
-│   └── next.config.js
-├── backend/           # Node.js/TypeScript/Express backend
-│   ├── src/
-│   │   ├── server.ts              # Main application entry point
-│   │   ├── services/
-│   │   │   └── database.ts        # PostgreSQL connection pool
-│   │   ├── middleware/
-│   │   │   └── auth.ts            # JWT authentication middleware
-│   │   ├── routes/
-│   │   │   ├── auth.ts            # Authentication endpoints
-│   │   │   ├── tasks.ts           # Task management endpoints
-│   │   │   └── health.ts          # Health check endpoints
-│   │   └── init-db.ts             # Database initialization script
-│   ├── package.json               # Dependencies and scripts
-│   ├── tsconfig.json              # TypeScript configuration
-│   └── .env                       # Environment variables
-└── README.md
-```
+
 
 ### Rules and Guidelines
 1. **Direct API Logic**: No agent layer - direct API → business logic
@@ -115,7 +83,7 @@ phase2/
 - Responsive and beautiful UI
 - Proper authentication and data security
 - Comprehensive API coverage
-- Production-ready Node.js/TypeScript/Express backend
+
 - Secure JWT authentication system
 - PostgreSQL integration with Neon database
 #

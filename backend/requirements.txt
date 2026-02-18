@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlmodel
+psycopg2-binary
+python-dotenv
+openai>=1.0.0
+pydantic>=2.5.0
+sse-starlette>=1.8.2
+python-jose[cryptography]
+bcrypt
+better-fastapi
+
+# Testing dependencies
+pytest
+pytest-asyncio
+httpx
