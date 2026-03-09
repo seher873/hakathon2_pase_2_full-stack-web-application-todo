@@ -3,8 +3,8 @@ import os
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .api.chat_routes import router as chat_router
-from .mcp.auth_wrapper import get_jwt_secret
+from api.chat_routes import router as chat_router
+from mcp.auth_wrapper import get_jwt_secret
 
 # Configure logging
 logging.basicConfig(

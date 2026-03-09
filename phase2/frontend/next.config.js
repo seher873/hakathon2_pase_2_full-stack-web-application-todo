@@ -1,8 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Use the Netlify plugin for deployment instead of static export
-  // The @netlify/next plugin will handle the deployment correctly
-  output: undefined, // Let Netlify plugin handle the output
+  // Static export for Netlify deployment
+  output: 'export',
+  
+  // Disable image optimization for static export
+  images: {
+    unoptimized: true,
+  },
 
   // WSL compatibility settings
   webpack: (config, { isServer }) => {

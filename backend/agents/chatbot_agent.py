@@ -4,13 +4,16 @@ import asyncio
 import logging
 from typing import Dict, Any, AsyncGenerator, Optional
 from openai import AsyncOpenAI
-from ..mcp.tool_registry import tool_registry
+from mcp.tool_registry import tool_registry
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 # Initialize OpenAI client
-client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai_api_key = os.getenv("OPENAI_API_KEY")
+client = None
+if openai_api_key and openai_api_key != "your_openai_api_key_here":
+    client = AsyncOpenAI(api_key=openai_api_key)
 
 class ChatbotAgent:
     """AI agent that processes natural language and uses MCP tools."""
@@ -43,6 +46,14 @@ class ChatbotAgent:
             Dict with response, success status, and optional data
         """
         logger.info(f"Processing message for user {user_id}: {message[:50]}...")
+
+        # Check if OpenAI client is available
+        if not self.client:
+            return {
+                "response": "AI chatbot is not configured. Please set up the OpenAI API key in the environment variables.",
+                "success": False,
+                "data": None
+            }
 
         try:
             # Create a conversation with tool use

@@ -213,8 +213,8 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       const response = await apiGet<TaskListResponse>(`/tasks`);
 
       if (response && response.data) {
-        // Ensure response.data.data is an array before processing
-        let tasksArray = Array.isArray(response.data.data) ? response.data.data : [];
+        // Ensure response.data is an array before processing
+        let tasksArray = Array.isArray(response.data) ? response.data : [];
         
         // Filter tasks client-side based on the state filter
         let filteredTasks = tasksArray;
@@ -243,7 +243,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
           type: TASK_ACTIONS.SET_TASKS,
           payload: {
             tasks: filteredTasks,
-            total: response.data.total ?? tasksArray.length,
+            total: tasksArray.length,
           },
         });
       } else {

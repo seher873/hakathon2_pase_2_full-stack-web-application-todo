@@ -4,9 +4,9 @@ from fastapi.responses import StreamingResponse
 import json
 import logging
 from typing import Dict, Any, AsyncGenerator
-from ..mcp.auth_wrapper import verify_token, forward_token_to_mcp_tools
-from ..agents.chatbot_agent import process_user_message
-from ..mcp.tool_models import ChatMessageModel, ChatResponseModel
+from mcp.auth_wrapper import verify_token, forward_token_to_mcp_tools
+from agents.chatbot_agent import process_user_message
+from mcp.tool_models import ChatMessageModel, ChatResponseModel
 
 # Set up logging
 logger = logging.getLogger(__name__)

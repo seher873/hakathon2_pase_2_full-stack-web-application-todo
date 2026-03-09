@@ -1,21 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { TaskForm } from '@/components/TaskForm';
 import { TaskList } from '@/components/TaskList';
 import { useTasks } from '@/hooks/useTasks';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { 
-    tasks, 
-    isLoading, 
-    error, 
-    createTask, 
-    updateTask, 
-    deleteTask, 
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
+  const {
+    tasks,
+    isLoading,
+    error,
+    createTask,
+    updateTask,
+    deleteTask,
     toggleTaskComplete,
     filter,
     searchQuery,
@@ -24,6 +28,13 @@ export default function DashboardPage() {
   } = useTasks();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
 
   const handleAddTask = async (taskData) => {
     try {
@@ -49,6 +60,18 @@ export default function DashboardPage() {
     setEditingTask(task);
     setShowAddForm(false);
   };
+
+  // Show loading or redirect message while checking authentication
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleCancelEdit = () => {
     setEditingTask(null);

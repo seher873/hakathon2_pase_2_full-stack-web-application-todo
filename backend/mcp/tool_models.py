@@ -23,7 +23,7 @@ class TaskUpdateModel(BaseModel):
     title: Optional[str] = Field(None, description="New title for the task")
     description: Optional[str] = Field(None, description="New description for the task")
     due_date: Optional[str] = Field(None, description="New due date in YYYY-MM-DD format")
-    status: Optional[str] = Field(None, description="New status for the task", regex="^(pending|completed)$")
+    status: Optional[str] = Field(None, description="New status for the task", pattern="^(pending|completed)$")
 
     class Config:
         schema_extra = {

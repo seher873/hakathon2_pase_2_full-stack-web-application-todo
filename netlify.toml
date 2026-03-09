@@ -1,11 +1,11 @@
 [build]
-  base = "frontend"
-  command = "cd frontend && npm install && npm run build && npm run export"
-  publish = "frontend/out"
+  base = "phase2/frontend"
+  command = "cd phase2/frontend && npm install && npm run build && npm run export"
+  publish = "phase2/frontend/out"
 
 [build.environment]
   NODE_VERSION = "20"
-  NEXT_PUBLIC_API_BASE_URL = "https://your-backend-url.com"
+  NEXT_PUBLIC_API_BASE_URL = "https://sehrkhan873-hakathon-2.hf.space"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
