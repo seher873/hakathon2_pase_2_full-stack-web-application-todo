@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Static export for Netlify deployment
-  output: 'export',
-  
-  // Disable image optimization for static export
+  // Disable image optimization for Netlify deployment
   images: {
     unoptimized: true,
   },
