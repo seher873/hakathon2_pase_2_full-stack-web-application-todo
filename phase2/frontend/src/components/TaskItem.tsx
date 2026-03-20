@@ -2,11 +2,11 @@
  * Individual task item component.
  *
  * Displays a single task with controls for completing,
- * editing, and deleting the task.
+ * editing, and deleting the task. Shows priority, tags, and due date.
  */
 
 import React, { useState } from 'react';
-import { TaskItemProps } from '../types';
+import { TaskItemProps, TaskPriority } from '../types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 
@@ -38,13 +38,44 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     }
   };
 
+  // Priority badge colors
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium':
+        return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'low':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  // Check if due date is overdue
+  const isOverdue = (dueDate?: string) => {
+    if (!dueDate) return false;
+    return new Date(dueDate) < new Date() && !task.completed;
+  };
+
+  // Format due date for display
+  const formatDueDate = (dueDate?: string) => {
+    if (!dueDate) return '';
+    const date = new Date(dueDate);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   return (
     <li className={`bg-white rounded-lg shadow-sm border transition-all duration-200 hover:shadow-md ${
       task.completed
         ? 'border-gray-200 bg-gray-50'
         : 'border-gray-200 hover:border-indigo-200'
     }`}>
-      <div className="p-3 sm:p-4 flex flex-col md:flex-row md:items-start justify-between gap-3 md:gap-0">
+      <div className="p-3 sm:p-4 flex flex-col md:flex-row items-start justify-between gap-3 md:gap-0">
         <div className="flex flex-col md:flex-row items-start md:items-start w-full gap-2 md:gap-3">
           <Checkbox
             checked={task.completed}
@@ -54,19 +85,39 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           />
 
           <div className="flex-1 min-w-0 w-full">
-            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2 mb-1">
               <h3
-                className={`text-sm md:text-base font-semibold truncate ${
+                className={`text-sm md:text-base font-semibold ${
                   task.completed ? 'line-through text-gray-500' : 'text-gray-900'
                 }`}
               >
                 {task.title}
               </h3>
-              {task.completed && (
-                <span className="ml-0 md:ml-2 mt-0.5 md:mt-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">
-                  Completed
-                </span>
-              )}
+              <div className="flex flex-wrap items-center gap-1">
+                {task.completed && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">
+                    Completed
+                  </span>
+                )}
+                {task.priority && (
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${getPriorityColor(task.priority)}`}>
+                    {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority
+                  </span>
+                )}
+                {task.due_date && (
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
+                    isOverdue(task.due_date)
+                      ? 'bg-red-100 text-red-800 border border-red-200'
+                      : 'bg-blue-50 text-blue-700 border border-blue-200'
+                  }`}>
+                    <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {formatDueDate(task.due_date)}
+                    {isOverdue(task.due_date) && ' (Overdue)'}
+                  </span>
+                )}
+              </div>
             </div>
 
             {task.description && (
@@ -77,7 +128,20 @@ export const TaskItem: React.FC<TaskItemProps> = ({
               </p>
             )}
 
-            <div className="mt-1 md:mt-2 flex items-center text-xs text-gray-500">
+            {task.tags && task.tags.trim() && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {task.tags.split(',').filter(tag => tag.trim()).map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200"
+                  >
+                    #{tag.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-2 flex items-center text-xs text-gray-500">
               <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
             </div>
           </div>
@@ -94,7 +158,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
               title="Open link"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M14 4h6m0 0v6m0-6L10 14" />
               </svg>
             </Button>
           )}

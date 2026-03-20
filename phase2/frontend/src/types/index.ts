@@ -17,6 +17,11 @@ import { UUID } from "crypto";
 // ============================================================================
 
 /**
+ * Task priority levels.
+ */
+export type TaskPriority = "low" | "medium" | "high";
+
+/**
  * User entity (created by Better Auth).
  * Note: Better Auth manages user creation and authentication,
  * backend only stores user reference via user_id in JWT.
@@ -39,6 +44,9 @@ export interface Task {
   description?: string;
   completed: boolean;
   url?: string; // Optional URL field for running links
+  priority: TaskPriority; // Task priority level
+  tags?: string; // Comma-separated tags string
+  due_date?: string; // Optional due date (ISO string)
   created_at: string;
   updated_at: string;
 }
@@ -54,6 +62,9 @@ export interface CreateTaskRequest {
   title: string;
   description?: string;
   url?: string; // Optional URL field for running links
+  priority?: TaskPriority; // Optional priority (defaults to medium)
+  tags?: string; // Comma-separated tags string
+  due_date?: string; // Optional due date (ISO string)
 }
 
 /**
@@ -63,6 +74,9 @@ export interface UpdateTaskRequest {
   title?: string;
   description?: string;
   url?: string; // Optional URL field for running links
+  priority?: TaskPriority;
+  tags?: string; // Comma-separated tags string
+  due_date?: string;
 }
 
 /**
@@ -182,11 +196,20 @@ export interface AuthResponse {
 export type TaskFilter = "all" | "pending" | "completed";
 
 /**
+ * Task sort options.
+ */
+export type TaskSortBy = "created_at" | "title" | "priority" | "due_date";
+export type TaskSortOrder = "asc" | "desc";
+
+/**
  * Form state for task creation/editing.
  */
 export interface TaskFormState {
   title: string;
   description: string;
+  priority: TaskPriority;
+  tags: string[];
+  due_date?: string;
   isSubmitting: boolean;
   error?: string;
 }
@@ -200,6 +223,8 @@ export interface TaskListState {
   error?: string;
   filter: TaskFilter;
   searchQuery: string;
+  sortBy: TaskSortBy;
+  sortOrder: TaskSortOrder;
   total: number;
 }
 

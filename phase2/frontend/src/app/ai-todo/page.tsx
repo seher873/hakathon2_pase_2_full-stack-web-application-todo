@@ -1,181 +1,254 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { processAICommand } from './actions';
 import { useAuth } from '../../hooks/useAuth';
+import { BACKEND_URL } from '@/utils/config';
 
-export default function AITodoLandingPage() {
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
+
+export default function AITodoPage() {
   const { token, isAuthenticated } = useAuth();
-  const [command, setCommand] = useState('');
+  const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!command.trim() || isLoading || !isAuthenticated || !token) return;
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const sendMessage = async (messageText: string) => {
+    if (!messageText.trim() || !isAuthenticated || !token) return;
 
     setIsLoading(true);
-    setResult(null);
+    
+    // Add user message to UI
+    const userMessage: Message = {
+      role: 'user',
+      content: messageText,
+      timestamp: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, userMessage]);
 
     try {
-      const response = await processAICommand(command, token);
-      setResult(response);
-
-      if (response.success) {
-        setCommand(''); // Clear the input on success
-      }
-    } catch (error) {
-      setResult({
-        success: false,
-        message: error instanceof Error ? error.message : 'An error occurred processing your request'
+      const response = await fetch(`${BACKEND_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          message: messageText,
+          conversation_id: conversationId || undefined,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      const data = await response.json();
+      
+      // Save conversation ID for future messages
+      if (!conversationId && data.conversation_id) {
+        setConversationId(data.conversation_id);
+      }
+
+      // Add assistant response to UI
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: data.response,
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+      setInput('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMessage: Message = {
+        role: 'assistant',
+        content: '❌ Sorry, I encountered an error. Please try again.',
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      sendMessage(input);
+    }
+  };
+
+  const exampleCommands = [
+    "Add buy milk",
+    "Show my tasks",
+    "Complete buy milk",
+    "Delete old task"
+  ];
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-600 to-purple-800 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle className="text-center">🤖 AI Todo Chatbot</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-gray-600 mb-4">Please sign in to use the AI chatbot</p>
+            <Button onClick={() => window.location.href = '/login'}>
+              Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-600 via-purple-700 to-purple-800 flex flex-col">
-      {/* Hero Section */}
-      <div className="flex-grow flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-purple-600 to-purple-800 py-8 px-4">
+      <div className="max-w-3xl mx-auto">
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-2xl mx-auto text-center"
+          className="text-center mb-6"
         >
-          {/* Badge */}
-          <Badge variant="secondary" className="mb-6 bg-purple-500/20 text-purple-100 backdrop-blur-sm">
-            Hackathon Phase 5 - Cloud Deployed
+          <Badge variant="secondary" className="mb-4 bg-purple-500/20 text-purple-100">
+            Phase 3 - AI Chatbot
           </Badge>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            🤖 AI Todo Assistant
+          </h1>
+          <p className="text-purple-200">
+            Manage your tasks with natural language
+          </p>
+        </motion.div>
 
-          {/* Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl md:text-6xl font-bold text-white mb-4"
-          >
-            AI-Powered Todo App
-          </motion.h1>
-
-          {/* Subtext */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg md:text-xl text-purple-200 mb-8 max-w-2xl mx-auto"
-          >
-            Manage tasks with natural language. Say 'kal ka kaam add karo' or 'pending tasks dikhao'
-          </motion.p>
-
-          {/* Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row justify-center gap-4 mb-12"
-          >
-            <Button
-              size="lg"
-              className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
-            >
-              <Link href="/signup">Get Started</Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 border-purple-300 text-white hover:bg-purple-300/20"
-            >
-              <Link href="/signup">Create Account</Link>
-            </Button>
-          </motion.div>
-
-          {/* AI Command Input */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="max-w-xl mx-auto"
-          >
-            {!isAuthenticated ? (
-              <div className="mt-4 p-4 rounded-lg text-center bg-yellow-500/20 text-yellow-100 border border-yellow-400/30">
-                Please <Link href="/login" className="underline">sign in</Link> to use AI commands.
-              </div>
-            ) : (
-              <>
-                <form onSubmit={handleSubmit}>
-                  <div className="relative">
-                    <Input
-                      ref={inputRef}
-                      type="text"
-                      value={command}
-                      onChange={(e) => setCommand(e.target.value)}
-                      placeholder="Type your task here... (e.g., 'Add buy milk', 'Show my tasks', 'Complete task')"
-                      className="w-full py-6 pl-6 pr-20 rounded-xl bg-white/10 backdrop-blur-sm border border-purple-300/30 text-white placeholder:text-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
-                      disabled={isLoading}
-                    />
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      type="submit"
-                      disabled={!command.trim() || isLoading}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-500 hover:bg-purple-600 text-white"
-                    >
-                      {isLoading ? 'Processing...' : 'Send'}
-                    </Button>
-                  </div>
-                </form>
-
-                {/* Result message */}
-                {result && (
+        {/* Chat Card */}
+        <Card className="shadow-2xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
+            <CardTitle className="flex items-center gap-2">
+              <span>💬</span> Chat Assistant
+            </CardTitle>
+          </CardHeader>
+          
+          <CardContent className="p-0">
+            {/* Messages */}
+            <div className="h-96 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              {messages.length === 0 ? (
+                <div className="text-center text-gray-500 py-12">
+                  <p className="text-4xl mb-4">👋</p>
+                  <p className="text-lg font-medium">Welcome to AI Todo!</p>
+                  <p className="text-sm mt-2">Try one of these commands:</p>
+                </div>
+              ) : (
+                messages.map((msg, idx) => (
                   <motion.div
+                    key={idx}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`mt-4 p-4 rounded-lg text-center ${
-                      result.success
-                        ? 'bg-green-500/20 text-green-100 border border-green-400/30'
-                        : 'bg-red-500/20 text-red-100 border border-red-400/30'
-                    }`}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    {result.message}
+                    <div
+                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                        msg.role === 'user'
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-white text-gray-800 border border-gray-200'
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-line">{msg.content}</p>
+                      <p className={`text-xs mt-1 ${
+                        msg.role === 'user' ? 'text-purple-200' : 'text-gray-400'
+                      }`}>
+                        {new Date(msg.timestamp).toLocaleTimeString()}
+                      </p>
+                    </div>
                   </motion.div>
-                )}
-              </>
+                ))
+              )}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white rounded-2xl px-4 py-3 border border-gray-200">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Example Commands */}
+            {messages.length === 0 && (
+              <div className="px-4 pb-4">
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {exampleCommands.map((cmd, idx) => (
+                    <Button
+                      key={idx}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => sendMessage(cmd)}
+                      className="text-xs"
+                    >
+                      {cmd}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             )}
 
-            {/* Example commands */}
-            <div className="mt-6 text-sm text-purple-300">
-              <p className="mb-2">Try these commands:</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <span className="bg-purple-500/10 px-2 py-1 rounded">"Add buy milk"</span>
-                <span className="bg-purple-500/10 px-2 py-1 rounded">"Show my tasks"</span>
-                <span className="bg-purple-500/10 px-2 py-1 rounded">"Complete buy milk"</span>
-                <span className="bg-purple-500/10 px-2 py-1 rounded">"Create task finish report"</span>
+            {/* Input Form */}
+            <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Type a command... (e.g., 'Add buy milk')"
+                  disabled={isLoading}
+                  className="flex-1"
+                />
+                <Button 
+                  type="submit" 
+                  disabled={isLoading || !input.trim()}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  {isLoading ? '...' : 'Send'}
+                </Button>
               </div>
-            </div>
-          </motion.div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Help Text */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-6 text-center text-purple-200 text-sm"
+        >
+          <p>💡 Tip: Be natural! Say things like "I need to buy groceries" or "Show me what's pending"</p>
         </motion.div>
       </div>
-
-      {/* Footer */}
-      <footer className="py-6 text-center text-purple-200/70 text-sm">
-        <div className="container mx-auto">
-          <p>© {new Date().getFullYear()} AI-Powered Todo App. All rights reserved.</p>
-          <div className="mt-2 flex justify-center space-x-6">
-            <Link href="#" className="hover:text-white transition-colors">About</Link>
-            <Link href="#" className="hover:text-white transition-colors">Contact</Link>
-            <Link href="#" className="hover:text-white transition-colors">Privacy</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

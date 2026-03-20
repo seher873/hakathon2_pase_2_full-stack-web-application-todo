@@ -1,12 +1,21 @@
 /**
  * Task context and hook for managing task state.
- * 
+ *
  * Provides centralized task management functionality
- * including CRUD operations, filtering, and loading states.
+ * including CRUD operations, filtering, sorting, and loading states.
  */
 
 import { createContext, useContext, useReducer, useEffect } from 'react';
-import { Task, TaskFilter, TaskListState, CreateTaskRequest, UpdateTaskRequest, TaskListResponse } from '../types';
+import { 
+  Task, 
+  TaskFilter, 
+  TaskListState, 
+  CreateTaskRequest, 
+  UpdateTaskRequest, 
+  TaskListResponse,
+  TaskSortBy,
+  TaskSortOrder
+} from '../types';
 import { apiGet, apiPost, apiPut, apiDelete, apiPatch } from '../services/api';
 import { useAuth } from './useAuth';
 
@@ -23,6 +32,7 @@ const TASK_ACTIONS = {
   DELETE_TASK: 'DELETE_TASK',
   SET_FILTER: 'SET_FILTER',
   SET_SEARCH_QUERY: 'SET_SEARCH_QUERY',
+  SET_SORT: 'SET_SORT',
   CLEAR_ERROR: 'CLEAR_ERROR',
 } as const;
 
@@ -70,6 +80,11 @@ interface SetSearchQueryAction {
   payload: string;
 }
 
+interface SetSortAction {
+  type: typeof TASK_ACTIONS.SET_SORT;
+  payload: { sortBy: TaskSortBy; sortOrder: TaskSortOrder };
+}
+
 interface ClearErrorAction {
   type: typeof TASK_ACTIONS.CLEAR_ERROR;
 }
@@ -83,6 +98,7 @@ type TaskAction =
   | DeleteTaskAction
   | SetFilterAction
   | SetSearchQueryAction
+  | SetSortAction
   | ClearErrorAction;
 
 // ============================================================================
@@ -95,6 +111,8 @@ const initialState: TaskListState = {
   error: undefined,
   filter: 'all',
   searchQuery: '',
+  sortBy: 'created_at',
+  sortOrder: 'desc',
   total: 0,
 };
 
@@ -147,6 +165,13 @@ const taskReducer = (state: TaskListState, action: TaskAction): TaskListState =>
     case TASK_ACTIONS.SET_SEARCH_QUERY:
       return { ...state, searchQuery: action.payload };
 
+    case TASK_ACTIONS.SET_SORT:
+      return { 
+        ...state, 
+        sortBy: action.payload.sortBy, 
+        sortOrder: action.payload.sortOrder 
+      };
+
     case TASK_ACTIONS.CLEAR_ERROR:
       return { ...state, error: undefined };
 
@@ -166,6 +191,7 @@ interface TaskContextType extends TaskListState {
   toggleTaskComplete: (taskId: string, completed: boolean) => Promise<void>;
   setFilter: (filter: TaskFilter) => void;
   setSearchQuery: (searchQuery: string) => void;
+  setSort: (sortBy: TaskSortBy, sortOrder: TaskSortOrder) => void;
   refreshTasks: () => Promise<void>;
 }
 
@@ -191,13 +217,13 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  // Refresh tasks when filter or search query changes (only if user is authenticated)
+  // Refresh tasks when filter, search query, or sort changes (only if user is authenticated)
   useEffect(() => {
     if (user) {
       refreshTasks();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.filter, state.searchQuery]);
+  }, [state.filter, state.searchQuery, state.sortBy, state.sortOrder]);
 
   // ============================================================================
   // Helper Functions
@@ -209,46 +235,40 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     try {
       dispatch({ type: TASK_ACTIONS.SET_LOADING, payload: true });
 
-      // Fetch tasks from API
-      const response = await apiGet<TaskListResponse>(`/tasks`);
+      // Build query parameters
+      const params: Record<string, string | number | boolean> = {
+        skip: 0,
+        limit: 100,
+        status: state.filter === 'all' ? undefined : state.filter,
+        search: state.searchQuery || undefined,
+        sort_by: state.sortBy,
+        sort_order: state.sortOrder,
+      };
+
+      // Remove undefined values
+      Object.keys(params).forEach(key => {
+        if (params[key] === undefined) {
+          delete params[key];
+        }
+      });
+
+      // Fetch tasks from API with query parameters
+      const response = await apiGet<TaskListResponse>(`/tasks`, params);
 
       if (response && response.data) {
         // Ensure response.data is an array before processing
         let tasksArray = Array.isArray(response.data) ? response.data : [];
-        
-        // Filter tasks client-side based on the state filter
-        let filteredTasks = tasksArray;
-
-        switch (state.filter) {
-          case 'completed':
-            filteredTasks = tasksArray.filter(task => task.completed);
-            break;
-          case 'pending':
-            filteredTasks = tasksArray.filter(task => !task.completed);
-            break;
-          default:
-            filteredTasks = tasksArray;
-        }
-
-        // Apply search query if present
-        if (state.searchQuery.trim()) {
-          const searchTerm = state.searchQuery.trim().toLowerCase();
-          filteredTasks = filteredTasks.filter(task =>
-            task.title?.toLowerCase().includes(searchTerm) ||
-            (task.description && task.description.toLowerCase().includes(searchTerm))
-          );
-        }
 
         dispatch({
           type: TASK_ACTIONS.SET_TASKS,
           payload: {
-            tasks: filteredTasks,
+            tasks: tasksArray,
             total: tasksArray.length,
           },
         });
       } else {
         // If data is missing for some reason, at least stop loading
-        dispatch({ 
+        dispatch({
           type: TASK_ACTIONS.SET_TASKS,
           payload: {
             tasks: [],
@@ -365,6 +385,13 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     dispatch({ type: TASK_ACTIONS.SET_FILTER, payload: filter });
   };
 
+  const setSort = (sortBy: TaskSortBy, sortOrder: TaskSortOrder): void => {
+    dispatch({ 
+      type: TASK_ACTIONS.SET_SORT, 
+      payload: { sortBy, sortOrder } 
+    });
+  };
+
   // ============================================================================
   // Context Value
   // ============================================================================
@@ -379,6 +406,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     setSearchQuery: (searchQuery: string): void => {
       dispatch({ type: TASK_ACTIONS.SET_SEARCH_QUERY, payload: searchQuery });
     },
+    setSort,
     refreshTasks,
   };
 

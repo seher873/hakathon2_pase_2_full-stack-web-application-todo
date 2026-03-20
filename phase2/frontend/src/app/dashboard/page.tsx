@@ -24,7 +24,10 @@ export default function DashboardPage() {
     filter,
     searchQuery,
     setFilter,
-    setSearchQuery
+    setSearchQuery,
+    sortBy,
+    sortOrder,
+    setSort
   } = useTasks();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -128,6 +131,9 @@ export default function DashboardPage() {
               onFilterChange={setFilter}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSortChange={setSort}
             />
           </CardContent>
         </Card>

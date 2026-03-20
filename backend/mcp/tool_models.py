@@ -8,13 +8,15 @@ class TaskCreateModel(BaseModel):
     title: str = Field(..., description="The title of the task", min_length=1)
     description: Optional[str] = Field(None, description="Optional description of the task")
     due_date: Optional[str] = Field(None, description="Optional due date in YYYY-MM-DD format")
+    status: Optional[str] = Field("pending", description="Status of the task", pattern="^(pending|completed)$")
 
     class Config:
         schema_extra = {
             "example": {
                 "title": "Submit report",
                 "description": "Submit the monthly report to the manager",
-                "due_date": "2024-12-31"
+                "due_date": "2024-12-31",
+                "status": "pending"
             }
         }
 
@@ -24,14 +26,40 @@ class TaskUpdateModel(BaseModel):
     description: Optional[str] = Field(None, description="New description for the task")
     due_date: Optional[str] = Field(None, description="New due date in YYYY-MM-DD format")
     status: Optional[str] = Field(None, description="New status for the task", pattern="^(pending|completed)$")
+    completed: Optional[bool] = Field(None, description="Completion status for the task (for compatibility)")
 
     class Config:
         schema_extra = {
             "example": {
                 "title": "Updated task title",
-                "status": "completed"
+                "status": "completed",
+                "completed": True
             }
         }
+
+class TaskModel(BaseModel):
+    """Model for a task entity."""
+    id: int = Field(..., description="Unique identifier for the task")
+    title: str = Field(..., description="The title of the task", min_length=1)
+    description: Optional[str] = Field(None, description="Optional description of the task")
+    due_date: Optional[str] = Field(None, description="Optional due date in YYYY-MM-DD format")
+    status: str = Field(default="pending", description="Status of the task", pattern="^(pending|completed)$")
+    created_at: datetime = Field(..., description="Timestamp when the task was created")
+    updated_at: datetime = Field(..., description="Timestamp when the task was last updated")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": 1,
+                "title": "Submit report",
+                "description": "Submit the monthly report to the manager",
+                "due_date": "2024-12-31",
+                "status": "pending",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00"
+            }
+        }
+
 
 class TaskToggleModel(BaseModel):
     """Model for toggling task completion status."""

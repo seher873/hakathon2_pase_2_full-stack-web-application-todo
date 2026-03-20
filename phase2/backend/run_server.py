@@ -20,15 +20,15 @@ if __name__ == "__main__":
     create_db_and_tables()
 
     print("Starting FastAPI server...")
-    print("Server will be available at: http://localhost:8000")
-    print("API docs: http://localhost:8000/docs")
-    print("Health check: http://localhost:8000/health")
+    print("Server will be available at: http://localhost:4001")
+    print("API docs: http://localhost:4001/docs")
+    print("Health check: http://localhost:4001/health")
 
     # Run the server
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=4001,
         reload=True,
         reload_dirs=["app"],
         log_level="info"

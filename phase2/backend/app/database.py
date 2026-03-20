@@ -19,13 +19,18 @@ else:
 # Create engine with connection pooling settings for Neon
 engine = create_engine(
     DATABASE_URL,
-    echo=False,  # Set to True for SQL debugging
+    echo=True,  # Set to True for SQL debugging
     pool_size=10,
     max_overflow=20,
     pool_pre_ping=True,  # Verify connections before use
     pool_recycle=300,    # Recycle connections every 5 minutes
+    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 )
 
 def get_session():
-    with Session(engine) as session:
+    """Dependency that provides a database session."""
+    session = Session(engine)
+    try:
         yield session
+    finally:
+        session.close()

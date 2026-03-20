@@ -3,10 +3,11 @@
  *
  * Provides a form interface for users to create new tasks
  * or update existing ones with validation and error handling.
+ * Includes priority, tags, and due date fields.
  */
 
 import React, { useState } from 'react';
-import type { TaskFormProps, CreateTaskRequest, UpdateTaskRequest } from '../types';
+import type { TaskFormProps, CreateTaskRequest, UpdateTaskRequest, TaskPriority } from '../types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,9 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [url, setUrl] = useState('');
+  const [priority, setPriority] = useState<TaskPriority>('medium');
+  const [tags, setTags] = useState('');
+  const [dueDate, setDueDate] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = (): boolean => {
@@ -37,8 +41,8 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
 
     if (!title.trim()) {
       newErrors.title = 'Title is required';
-    } else if (title.trim().length > 255) {
-      newErrors.title = 'Title must be 255 characters or less';
+    } else if (title.trim().length > 200) {
+      newErrors.title = 'Title must be 200 characters or less';
     }
 
     if (description && description.length > 1000) {
@@ -47,6 +51,15 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
 
     if (url && !isValidUrl(url)) {
       newErrors.url = 'Please enter a valid URL';
+    }
+
+    if (dueDate) {
+      const selectedDate = new Date(dueDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today) {
+        newErrors.dueDate = 'Due date cannot be in the past';
+      }
     }
 
     setErrors(newErrors);
@@ -73,14 +86,23 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
       // Determine if this is an update or create based on whether we have initial values
       const isUpdate = !!initialTitle || !!initialDescription;
 
+      // Keep tags as comma-separated string
+      const tagsString = tags.trim();
+
       const taskData = isUpdate ? {
         title: title.trim() || undefined,
         description: description.trim() || undefined,
         url: url.trim() || undefined,
+        priority: priority || undefined,
+        tags: tagsString || undefined,
+        due_date: dueDate || undefined,
       } : {
         title: title.trim(),
         description: description.trim() || undefined,
         url: url.trim() || undefined,
+        priority,
+        tags: tagsString || undefined,
+        due_date: dueDate || undefined,
       };
 
       await onSubmit(taskData);
@@ -90,6 +112,9 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
         setTitle('');
         setDescription('');
         setUrl('');
+        setPriority('medium');
+        setTags('');
+        setDueDate('');
         setErrors({});
       }
     } catch (err) {
@@ -171,6 +196,68 @@ export const TaskForm: React.FC<TaskFormComponentProps> = ({
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   {errors.description}
+                </p>
+              )}
+            </div>
+
+            {/* Priority Selection */}
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="priority">Priority</Label>
+              <select
+                id="priority"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as TaskPriority)}
+                disabled={isLoading}
+                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            {/* Tags Input */}
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="tags">Tags (comma-separated)</Label>
+              <Input
+                type="text"
+                id="tags"
+                value={tags}
+                onChange={(e) => {
+                  setTags(e.target.value);
+                }}
+                placeholder="work, urgent, home"
+                disabled={isLoading}
+              />
+              <p className="text-xs text-gray-500">Separate multiple tags with commas</p>
+            </div>
+
+            {/* Due Date */}
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="dueDate">Due Date (Optional)</Label>
+              <Input
+                type="date"
+                id="dueDate"
+                value={dueDate}
+                onChange={(e) => {
+                  setDueDate(e.target.value);
+                  if (errors.dueDate) {
+                    setErrors((prev) => {
+                      const newErrors = { ...prev };
+                      delete newErrors.dueDate;
+                      return newErrors;
+                    });
+                  }
+                }}
+                disabled={isLoading}
+                className={errors.dueDate ? 'border-red-500' : ''}
+              />
+              {errors.dueDate && (
+                <p className="text-xs md:text-sm text-red-600 flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {errors.dueDate}
                 </p>
               )}
             </div>
