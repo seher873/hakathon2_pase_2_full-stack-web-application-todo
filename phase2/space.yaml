@@ -1,14 +1,42 @@
-# Hugging Face Space configuration for the backend API
-type: docker
-dockerfile: backend/Dockerfile
-build_args:
-  - PORT=4000
+# Hugging Face Spaces Configuration
+# For deploying the Todo App with AI Chatbot
+
+# Space SDK
+sdk: docker
+
+# Container configuration
+container:
+  port: 4001
+
+# Environment variables
 env:
-  - API_HOST=0.0.0.0
-  - API_PORT=4000
-  - USE_POSTGRES=false  # Using SQLite for simplicity in the Space
-  - JWT_SECRET=supersecretkeyforhuggingfacespacethatshouldbeverylong
-  - ENVIRONMENT=production
+  - name: DATABASE_URL
+    value: sqlite:///./app.db
+  - name: PORT
+    value: "4001"
+
+# Resources
+resources:
+  cpu: small
+  memory: 512MB
+
+# Health check
+health:
+  endpoint: /health
+  port: 4001
+  timeout: 30
+
+# Build context
+build:
+  context: backend
+  dockerfile: Dockerfile
+
+# Ports
 ports:
-  - 4000
-api: true
+  - port: 4001
+    protocol: http
+
+# Persistent storage
+storage:
+  - mount_path: /app/data
+    size: 1GB

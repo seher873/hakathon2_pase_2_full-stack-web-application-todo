@@ -1,39 +1,28 @@
-# Use a Node.js base image
-FROM node:18-alpine
+# Hugging Face Spaces - Backend Only Deployment
+# Simpler approach for HF Spaces
 
-# Set working directory
+FROM python:3.11-slim
+
 WORKDIR /app
 
-# Install curl for health checks
-RUN apk add --no-cache curl
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
-COPY package*.json ./
+# Copy and install requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install dependencies (including dev dependencies for building)
-RUN npm ci
+# Copy backend code
+COPY app ./app
 
-# Copy source files
-COPY . .
-
-# Build the TypeScript code
-RUN npm run build
-
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
-
-# Change ownership of the working directory
-RUN chown -R nextjs:nodejs /app
-USER nextjs
-
-# Expose port required by Hugging Face Spaces
-ENV PORT=7860
-EXPOSE 7860
+# Expose port
+EXPOSE 4001
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:$PORT/api/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:4001/health || exit 1
 
-# Start the application
-CMD ["npm", "start"]
+# Run the server
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "4001"]
