@@ -24,7 +24,7 @@ import { getAuthHeader } from "@/utils/storage";
 // ============================================================================
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://sehrkhan873-hakathon-2.hf.space";
 
 // ============================================================================
 // Error Handling

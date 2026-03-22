@@ -1,4 +1,16 @@
-frontend/.netlify/
+# Hugging Face Spaces Configuration
+sdk: gradio
+python_version: 3.11
 
-# PHR (Prompt History Records) - local documentation
-history/
+build:
+  app: app:app
+
+env:
+  - name: DATABASE_URL
+    value: sqlite:///./app.db
+  - name: PORT
+    value: "7860"
+
+# Allow all origins for CORS
+cors:
+  allow_origins: ["*"]

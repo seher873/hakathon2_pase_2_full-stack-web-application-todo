@@ -267,6 +267,9 @@ export interface TaskListProps {
   searchQuery?: string;
   onFilterChange?: (filter: TaskFilter) => void;
   onSearchChange?: (searchQuery: string) => void;
+  sortBy?: TaskSortBy;
+  sortOrder?: TaskSortOrder;
+  onSortChange?: (sortBy: TaskSortBy, sortOrder: TaskSortOrder) => void;
 }
 
 /**

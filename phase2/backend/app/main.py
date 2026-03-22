@@ -47,11 +47,13 @@ app.add_middleware(
         "http://localhost:5173",     # Vite default port
         "http://localhost:3002",     # Alternative port
         "https://*.vercel.app",      # Allow any vercel deployment
+        "https://*.netlify.app",     # Allow any netlify deployment
         "http://localhost:8000",     # Our backend port
+        "*",                         # Allow all origins for development
     ],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["Authorization", "Content-Type", "*"],  # Include Authorization header and wildcard
+    allow_headers=["*"],
 )
 
 # Include the routes
