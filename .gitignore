@@ -28,7 +28,33 @@ out/
 .cargo/
 target/
 
-# Logs
+# Test files
+test/
+tests/
+__tests__/
+*.test.js
+*.test.jsx
+*.test.ts
+*.test.tsx
+*.test.py
+*.spec.js
+*.spec.jsx
+*.spec.ts
+*.spec.tsx
+test_*.py
+test_*.js
+*_test.py
+*_test.js
+test-*.py
+test-*.js
+test.sh
+test_*.sh
+*-test.py
+*-test.js
+
+# Test outputs and coverage
+coverage/
+.nyc_output/
 *.log
 logs/
 server.log
@@ -40,6 +66,9 @@ server.log
 .env.production
 .env.staging
 .env.test
+.env.bak
+.env.*.local
+*.env
 
 # Database
 *.db
